@@ -1,21 +1,30 @@
 
-// 111111111 create category 111111111111
+//   create category  
 
 export const createCategoryCtrl = (req, res) => {
 
-    console.log("Body", req.body)
+    console.log("Body", req.body);
+    console.log("File:", req.file);
     res.status(200).json({
-        "message": "Create Category"
+        "message": "Create Category",
+        file: req.file,
+        body: req.body,
     })
 }
 
 
-// 222222222222 get gategory 2222222222222
-export const getCategoryCtrl = (req, res) => {
+//   get gategory  
+export const getAllCategoryCtrl = (req, res) => {
 
-    console.log("Body", req.body)
+    const { id, search, status, orderType } = req.query
+    console.log("search", search)
+    if (id) {
+
+    } else {
+
+    } 
     res.status(200).json({
-        "message": "getCategoryCtrl  Category"
+        "message": "getAllCategoryCtrl  Category"
     })
 }
 
@@ -24,7 +33,7 @@ export const getCategoryCtrl = (req, res) => {
 
 
 
-// 3333333333 update category 3333333333333
+//   update category  
 export const updateCategoryCtrl = (req, res) => {
 
     console.log("Body", req.body)
@@ -34,11 +43,25 @@ export const updateCategoryCtrl = (req, res) => {
 }
 
 
-// 444444444 delete category 44444444444
+//   delete category  
 export const deleteCategoryCtrl = (req, res) => {
 
     console.log("Body", req.body)
     res.status(200).json({
         "message": "deleteCategoryCtrl Category"
     })
+}
+
+
+export const categoryCounts = (req,res) => {
+    res.status(200).json({
+        "message": " Category counts"
+    })
+}
+
+export const exportCategory=(req,res)=>{
+res.status(200).json({
+        "message": " Categories exported"
+    })
+
 }

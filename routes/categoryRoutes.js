@@ -1,9 +1,12 @@
 import express from "express"
-import { createCategoryCtrl, getCategoryCtrl, updateCategoryCtrl, deleteCategoryCtrl, } from "../controllers/categoryCtrl/categoryCtrl"
-
+import { createCategoryCtrl, deleteCategoryCtrl, getAllCategoryCtrl,  updateCategoryCtrl ,categoryCounts, exportCategory} from "../controllers/categoryCtrl/categoryCtrl.js"
+import { upload } from "../middlewares/multer/index.js"
+ 
 export const categoryRoutes = express.Router()
 
-categoryRoutes.post("create-category", createCategoryCtrl)
-categoryRoutes.post("get-category", getCategoryCtrl)
-categoryRoutes.patch("update-category", updateCategoryCtrl)
-categoryRoutes.delete("delete-category", deleteCategoryCtrl) 
+categoryRoutes.post("/add-category", upload.single('category_img'), createCategoryCtrl)
+categoryRoutes.get("/get-all-category", getAllCategoryCtrl)
+categoryRoutes.put("/update-category", updateCategoryCtrl)
+categoryRoutes.delete("/delete-category", deleteCategoryCtrl) 
+categoryRoutes.get("/category-counts", categoryCounts) 
+categoryRoutes.get("/export-category", exportCategory) 

@@ -1,31 +1,35 @@
+import { addCategorySrvc, deleteCategorySrvc, exportToExcelSrvc, getCategorySrvc, updateCategorySrvc } from "../../services/categorySrvc.js";
+import { api_response } from "../../utils/response.js";
 
 //   create category  
 
-export const createCategoryCtrl = (req, res) => {
+export const addCategoryCtrl = async (req, res) => {
 
-    console.log("Body", req.body);
-    console.log("File:", req.file);
-    res.status(200).json({
-        "message": "Create Category",
-        file: req.file,
-        body: req.body,
-    })
-}
+    const data = req.body;
+
+    data.category_img = req.file.filename;
+
+    const categorySrvcRes = await addCategorySrvc(data);
+
+    return res.status(200).json(
+
+        categorySrvcRes
+
+    );
+};
+
 
 
 //   get gategory  
-export const getAllCategoryCtrl = (req, res) => {
+export const getAllCategoryCtrl = async (req, res) => {
 
-    const { id, search, status, orderType } = req.query
-    console.log("search", search)
-    if (id) {
+    const getCategoryRes = await getCategorySrvc(req.query)
 
-    } else {
+    return res.status(200).json(
 
-    } 
-    res.status(200).json({
-        "message": "getAllCategoryCtrl  Category"
-    })
+        getCategoryRes
+
+    );
 }
 
 
@@ -34,34 +38,40 @@ export const getAllCategoryCtrl = (req, res) => {
 
 
 //   update category  
-export const updateCategoryCtrl = (req, res) => {
+export const updateCategoryCtrl = async (req, res) => {
 
-    console.log("Body", req.body)
-    res.status(200).json({
-        "message": "updateCategoryCtrl  Category"
-    })
+    const updateCategoryRes = await updateCategorySrvc(req)
+
+    return res.status(200).json(
+
+        updateCategoryRes
+
+    );
 }
 
 
 //   delete category  
-export const deleteCategoryCtrl = (req, res) => {
+export const deleteCategoryCtrl = async (req, res) => {
+    const { id } = req.query;
 
-    console.log("Body", req.body)
-    res.status(200).json({
-        "message": "deleteCategoryCtrl Category"
-    })
+    const deleteCategoryRes = await deleteCategorySrvc(id)
+
+    return res.status(200).json(
+
+        deleteCategoryRes
+
+    );
 }
 
 
-export const categoryCounts = (req,res) => {
-    res.status(200).json({
-        "message": " Category counts"
-    })
-}
+export const exportCategory = async (req, res) => {
 
-export const exportCategory=(req,res)=>{
-res.status(200).json({
-        "message": " Categories exported"
-    })
+    const exportCategoryRes = await exportToExcelSrvc(req,res)
+
+    return res.status(200).json(
+
+        exportCategoryRes
+
+    );
 
 }

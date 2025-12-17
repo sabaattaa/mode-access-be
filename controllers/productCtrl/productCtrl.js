@@ -1,52 +1,139 @@
 
-// 111111111 create Product 111111111111
+// Add Product
 
-export const addProductCtrl = (req, res) => {
+import { addProductSrvc,  deleteProductSrvc, getProducts, updateProductSrvc } from "../../services/adminSrvc/productSrvc.js"
 
-    console.log("Body", req.body);
-    console.log("Files:", req.files);
-    res.status(200).json({
-        "message": "Create Product",
-        file: req.files,
-        body: req.body,
-    })
+export const addProductCtrl = async (req, res) => {
+    const { name, sku, description, category, price, original_price, stock_quantity, status, featured } = req.body;
+
+    const images = req.files?.map(file => file.path);
+
+    if (!images || images.length === 0) {
+        throw new Error("Product images are required");
+    }
+
+    const data = { name, sku, description, category, price, original_price, stock_quantity, status, featured, product_imgs: images, };
+
+    const addProductRes = await addProductSrvc(data)
+
+    res.status(200).json(addProductRes)
 }
 
 
-// 222222222222 get gategory 2222222222222
-export const getAllProductsCtrl = (req, res) => {
+//  Get All Products
 
-    const { id, search, status, orderType } = req.query
-    console.log("search", search)
+export const getAllProductsCtrl = async (req, res) => {
+    try {
+        const { id, search, category, status, filterType } = req.query;
 
-    res.status(200).json({
-        "message": "getAllProductCtrl  Product"
-    })
-}
+        let filter = {};
 
-
-
+        if (id) filter._id = id;
+        if (category) filter.category = category;
+        if (status) filter.status = status;
 
 
+        if (search) {
+            filter.$or = [
+                { name: { $regex: search, $options: "i" } },
+                { sku: { $regex: search, $options: "i" } },
+            ];
+        }
 
-// 3333333333 update Product 3333333333333
-export const updateProductCtrl = (req, res) => {
+        let sort = {};
 
-    console.log("Body", req.body)
-    res.status(200).json({
-        "message": "updateProductCtrl  Product"
-    })
-}
+        switch (filterType) {
+            case "newfirst":
+                sort = { createdAt: -1 };
+                break;
+
+            case "oldestFirst":
+                sort = { createdAt: 1 };
+                break;
+
+            case "priceHtoL":
+                sort = { price: -1 };
+                break;
+
+            case "priceLtoH":
+                sort = { price: 1 };
+                break;
+
+            case "nameAtoZ":
+                sort = { name: 1 };
+                break;
+
+            case "nameZtoA":
+                sort = { name: -1 };
+                break;
+
+            case "stockLtoH":
+                sort = { stock_quantity: 1 };
+                break;
+
+            case "stockHtoL":
+                sort = { stock_quantity: -1 };
+                break;
+
+            default:
+                sort = { createdAt: -1 };
+        }
+
+        const result = await getProducts(filter, sort);
+        res.status(200).json(result);
+
+    } catch (error) {
+        res.status(500).json(
+            api_response("FAIL", "Something went wrong", null, error)
+        );
+    }
+};
 
 
-// 444444444 delete Product 44444444444
-export const deleteProductCtrl = (req, res) => {
 
-    console.log("Body", req.body)
-    res.status(200).json({
-        "message": "deleteProductCtrl Product"
-    })
-}
+
+
+
+export const updateProductCtrl = async (req, res) => {
+  try {
+    const { id } = req.query;
+
+    const {name,sku,description,category,price,original_price,stock_quantity,status,featured,} = req.body;
+
+    const images = req.files?.map(file => file.path);
+
+    const data = {name,sku,description,category,price,original_price,stock_quantity,status,featured,};
+ 
+    if (images && images.length > 0) {
+      data.product_imgs = images;
+    }
+
+    const response = await updateProductSrvc(id, data);
+
+    res.status(200).json(response);
+
+  } catch (error) {
+    res.status(500).json(
+      api_response("FAIL", "Update failed", null, error)
+    );
+  }
+};
+
+
+//   Delete Product  
+export const deleteProductCtrl = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const response = await deleteProductSrvc(id);
+    res.status(200).json(response);
+
+  } catch (error) {
+    res.status(500).json(
+      api_response("FAIL", "Delete failed", null, error)
+    );
+  }
+};
 
 export const importProductCtrl = (req, res) => {
 

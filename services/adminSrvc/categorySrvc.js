@@ -1,7 +1,6 @@
-import json2xls from "json2xls";
-import categoryModel from "../models/categoryModel.js";
-import Category from "../models/categoryModel.js";
-import { api_response } from "../utils/response.js";
+
+import Category from "../../models/categoryModel.js"; 
+import { api_response } from "../../utils/response.js";
 import fs from "fs";
 import XLSX from "xlsx";
 
@@ -48,7 +47,7 @@ export const getCategorySrvc = async (query) => {
         }
 
 
-        const categories = await categoryModel.find(filter).sort(sort);
+        const categories = await Category.find(filter).sort(sort);
         const [
             totalCategories,
             activeCategories,
@@ -58,13 +57,13 @@ export const getCategorySrvc = async (query) => {
             subCategories,
             // categoriesWithProductCount
         ] = await Promise.all([
-            categoryModel.countDocuments(),
-            categoryModel.countDocuments({ status: "active" }),
-            categoryModel.countDocuments({ status: "inactive" }),
-            categoryModel.countDocuments({ status: "draft" }),
-            categoryModel.countDocuments({ parent_category: null }),
-            categoryModel.countDocuments({ parent_category: { $ne: null } }),
-            // categoryModel.aggregate([
+            Category.countDocuments(),
+            Category.countDocuments({ status: "active" }),
+            Category.countDocuments({ status: "inactive" }),
+            Category.countDocuments({ status: "draft" }),
+            Category.countDocuments({ parent_category: null }),
+            Category.countDocuments({ parent_category: { $ne: null } }),
+            // Category.aggregate([
             //     {
             //         $lookup: {
             //             from: "products",
@@ -81,7 +80,7 @@ export const getCategorySrvc = async (query) => {
             //     { $project: { products: 0 } }
             // ])
         ]);
-        const counts = [
+        const counts = {
             totalCategories,
             activeCategories,
             inactiveCategories,
@@ -89,14 +88,14 @@ export const getCategorySrvc = async (query) => {
             parentCategories,
             subCategories,
             // categoriesWithProductCount
-        ]
+        }
 
         return api_response(
             "SUCCESS",
             "Categories fetched successfully.",
             {
+                counts,
                 categories,
-                counts
             }
         );
     } catch (e) {
@@ -133,7 +132,7 @@ export const updateCategorySrvc = async (req) => {
         if (description) updateData.description = description;
 
 
-        const updatedCategory = await categoryModel.findByIdAndUpdate(
+        const updatedCategory = await Category.findByIdAndUpdate(
             id,
             { $set: updateData },
             { new: true }
@@ -157,7 +156,7 @@ export const deleteCategorySrvc = async (id) => {
             return api_response("FAIL", "Category ID is required.", null);
         }
 
-        const delCategory = await categoryModel.deleteOne({ _id: id });
+        const delCategory = await Category.deleteOne({ _id: id });
 
         if (delCategory.deletedCount === 0) {
             return api_response("FAIL", "Category not found.", null);
@@ -177,7 +176,7 @@ export const deleteCategorySrvc = async (id) => {
 
 export const exportToExcelSrvc = async (req,res) => {
   try {
-    const categories = await categoryModel.find().lean();
+    const categories = await Category.find().lean();
  
     const worksheet = XLSX.utils.json_to_sheet(categories);
     const workbook = XLSX.utils.book_new();

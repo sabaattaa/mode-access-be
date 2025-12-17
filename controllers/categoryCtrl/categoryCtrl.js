@@ -1,13 +1,12 @@
-import { addCategorySrvc, deleteCategorySrvc, exportToExcelSrvc, getCategorySrvc, updateCategorySrvc } from "../../services/categorySrvc.js";
-import { api_response } from "../../utils/response.js";
-
+import { addCategorySrvc, deleteCategorySrvc, exportToExcelSrvc, getCategorySrvc, updateCategorySrvc } from "../../services/adminSrvc/categorySrvc.js";
+ 
 //   create category  
 
 export const addCategoryCtrl = async (req, res) => {
 
     const data = req.body;
-
-    data.category_img = req.file.filename;
+ 
+    data.category_img = req.file.path;
 
     const categorySrvcRes = await addCategorySrvc(data);
 

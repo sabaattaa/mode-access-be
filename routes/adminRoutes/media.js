@@ -1,5 +1,5 @@
 import express from "express"
-import { getmediaAlertsCtrl, mediaCountCtrl } from "../controllers/mediaCtrl/mediaCtrl.js";
+import { getmediaAlertsCtrl, mediaCountCtrl } from "../../controllers/mediaCtrl/mediaCtrl.js";
 
 export const mediaRoutes = express.Router()
  

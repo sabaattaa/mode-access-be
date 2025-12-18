@@ -1,8 +1,8 @@
 
 import mongoose from "mongoose";
 
-const cartModal = new mongoose.Schema({
-    user_id: {
+const userSchema = new mongoose.Schema({
+    user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         default: null
@@ -30,12 +30,14 @@ const cartModal = new mongoose.Schema({
         type: Number,
         required: true
     },
-  
+    is_active: {
+        type: Boolean,
+        default: true
+    }
 }, { timestamps: true });
+ 
+userSchema.index({ user: 1, product_id: 1 });
+userSchema.index({ guest_id: 1, product_id: 1 });
 
-// Index for faster queries
-cartModal.index({ user_id: 1, product_id: 1 });
-cartModal.index({ guest_id: 1, product_id: 1 });
-
-const Cart = mongoose.model("Cart", cartModal);
-export default Cart;
+const User = mongoose.model("User", userSchema);
+export default User;

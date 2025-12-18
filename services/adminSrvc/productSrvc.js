@@ -1,4 +1,4 @@
-import Product from "../../models/productModel.js";
+import Product from "../../models/adminModel/productModel.js";
 import { api_response } from "../../utils/response.js";
 
 
@@ -25,10 +25,9 @@ export const addProductSrvc = async (data) => {
 };
 
 
+
 export const getProducts = async (filter, sort) => {
     try {
-
-
         const [
             totalProducts,
             activeProducts,
@@ -141,4 +140,10 @@ export const deleteProductSrvc = async (id) => {
             error
         );
     }
+};
+
+
+export const findProduct = async (id) => {
+    const product = await Product.findById(id);
+    return product;
 };

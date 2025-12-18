@@ -1,5 +1,6 @@
 import express from "express"
-import { addCategoryCtrl, deleteCategoryCtrl, getAllCategoryCtrl, updateCategoryCtrl,  exportCategory } from "../../controllers/categoryCtrl/categoryCtrl.js"
+import { addCategoryCtrl, deleteCategoryCtrl, getAllCategoryCtrl, updateCategoryCtrl,  exportCategory }
+ from "../../controllers/adminCtrl/categoryCtrl/categoryCtrl.js" 
 import { upload } from "../../middlewares/multer/index.js"
 
 export const categoryRoutes = express.Router();

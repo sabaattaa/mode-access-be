@@ -4,7 +4,8 @@ import { categoryRoutes } from "./adminRoutes/categoryRoutes.js";
 import { productRoutes } from "./adminRoutes/productRoutes.js";
 import { inventoryRoutes } from "./adminRoutes/inventory.js";
 import { mediaRoutes } from "./adminRoutes/media.js";
-import { CartRoutes } from "./customerRoutes/cartRoutes.js"; 
+import { CartRoutes } from "./customerRoutes/cartRoutes.js";
+// import { CartRoutes } from "./customerRoutes/cartRoutes.js"; 
 
 export const AllRoutes = express.Router();
 

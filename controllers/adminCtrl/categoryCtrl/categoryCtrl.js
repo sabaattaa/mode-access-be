@@ -1,4 +1,5 @@
-import { addCategorySrvc, deleteCategorySrvc, exportToExcelSrvc, getCategorySrvc, updateCategorySrvc } from "../../services/adminSrvc/categorySrvc.js";
+import { addCategorySrvc, deleteCategorySrvc, exportToExcelSrvc, getCategorySrvc, updateCategorySrvc } 
+from "../../../services/adminSrvc/categorySrvc.js";
  
 //   create category  
 

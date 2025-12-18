@@ -1,7 +1,6 @@
 
-import Category from "../../models/categoryModel.js"; 
+import Category from "../../models/adminModel/categoryModel.js"; 
 import { api_response } from "../../utils/response.js";
-import fs from "fs";
 import XLSX from "xlsx";
 
 export const addCategorySrvc = async (data) => {

@@ -1,6 +1,6 @@
 import express from "express"
 import { upload } from "../../middlewares/multer/index.js"
-import { addProductCtrl, deleteProductCtrl, exportProductCtrl, getAllProductsCtrl, importProductCtrl, updateProductCtrl } from "../../controllers/productCtrl/productCtrl.js"
+import { addProductCtrl, deleteProductCtrl, exportProductCtrl, getAllProductsCtrl, importProductCtrl, updateProductCtrl } from "../../controllers/adminCtrl/productCtrl/productCtrl.js"
 
 export const productRoutes = express.Router()
 

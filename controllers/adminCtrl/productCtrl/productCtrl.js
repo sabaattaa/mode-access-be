@@ -1,7 +1,7 @@
 
 // Add Product
 
-import { addProductSrvc,  deleteProductSrvc, getProducts, updateProductSrvc } from "../../services/adminSrvc/productSrvc.js"
+import { addProductSrvc,  deleteProductSrvc, getProducts, updateProductSrvc } from "../../../services/adminSrvc/productSrvc.js"
 
 export const addProductCtrl = async (req, res) => {
     const { name, sku, description, category, price, original_price, stock_quantity, status, featured } = req.body;

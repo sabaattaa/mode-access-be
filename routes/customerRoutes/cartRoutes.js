@@ -1,10 +1,20 @@
-import express from "express"
-import { addCartCtrl, deleteCartCtrl, getAllCartsCtrl, updateCartCtrl } from "../../customer/cartCtrl/cartCtrl.js";
- 
-export const CartRoutes = express.Router();
+import express from "express";
+import {
+    generateGuest,
+    addCartCtrl,
+    getAllCartsCtrl,
+    deleteCartCtrl,
+    updateCartCtrl, 
+} from "../../controllers/customerCtrl/cartCtrl/cartCtrl.js";
+import { authMiddelware } from "../../middlewares/authMiddleware/authMiddelware.js";
 
-CartRoutes.post("/add-cart",  addCartCtrl);
-CartRoutes.get("/get-all-cart", getAllCartsCtrl);
-CartRoutes.put("/update-cart",  updateCartCtrl);
-CartRoutes.delete("/delete-cart", deleteCartCtrl); 
+export const CartRoutes = express.Router();
  
+CartRoutes.get("/generate-guest", generateGuest);
+
+// All cart routes with auth
+CartRoutes.post("/add-cart", authMiddelware, addCartCtrl);
+CartRoutes.get("/get-all-cart/:id", authMiddelware, getAllCartsCtrl);
+CartRoutes.delete("/update-cart/:id", authMiddelware, updateCartCtrl);
+CartRoutes.delete("/delete-cart/:id", authMiddelware, deleteCartCtrl);
+

@@ -9,6 +9,7 @@ import {
 } from "../../../services/customerSrvc/cartSrvc.js";
 import { api_response } from "../../../utils/response.js";
 import { findProduct } from "../../../services/adminSrvc/productSrvc.js";
+import Guest from "../../../models/customerModels/guestModel.js";
 
 // Generate Guest ID
 export const generateGuest = async (req, res) => {
@@ -21,6 +22,7 @@ export const generateGuest = async (req, res) => {
             { guest_id: guestId, type: "guest" },
             key,
         );
+        const guest = await Guest.create({ guest_id: guestId });
 
         return res.status(200).json(
             api_response(
@@ -142,10 +144,7 @@ export const updateCartCtrl = async (req, res) => {
 export const deleteCartCtrl = async (req, res) => {
     try {
 
-        console.log("wwwwwwwwwwsdsw", req.user)
         const { id } = req.params;
-
-
 
         if (!id) {
             return res.status(400).json(
@@ -162,4 +161,31 @@ export const deleteCartCtrl = async (req, res) => {
         );
     }
 };
+
+
+
+export const addWishlistCtrl = async (req, res) => {
+
+    try {
+
+        console.log("wwwwwwwwwwsdsw", req.user)
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json(
+                api_response("FAIL", "ID is required", null)
+            );
+        }
+        const response = await deleteCartSrvc(id);
+        return res.status(response.status === "SUCCESS" ? 200 : 400).json(response);
+
+    } catch (error) {
+        return res.status(500).json(
+            api_response("FAIL", "Delete failed", null, error.message)
+        );
+    }
+
+
+}
+
 

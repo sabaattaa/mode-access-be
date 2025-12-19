@@ -3,8 +3,7 @@ import Cart from "../../models/customerModels/cartModel.js";
 import Product from "../../models/adminModel/productModel.js";
 import { api_response } from "../../utils/response.js";
 import mongoose from "mongoose";
-import { connectDB } from "../db/mongodb.js";
-
+ 
 //  Add to Cart Service
 export const addCartSrvc = async (data) => {
     try {
@@ -142,8 +141,7 @@ export const updateCartSrvc = async (cartId, quantity = 1, userId) => {
 // Delete Cart Service (Soft delete) 
 export const deleteCartSrvc = async (cartId, userId) => {
   try {
-
-    console.log("ssssss", req.user)
+ 
     const filter = { _id: cartId };
 
     // user vs guest handling (clean)

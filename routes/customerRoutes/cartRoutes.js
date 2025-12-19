@@ -5,12 +5,14 @@ import {
     getAllCartsCtrl,
     deleteCartCtrl,
     updateCartCtrl, 
+    addWishlistCtrl, 
 } from "../../controllers/customerCtrl/cartCtrl/cartCtrl.js";
 import { authMiddelware } from "../../middlewares/authMiddleware/authMiddelware.js";
 
 export const CartRoutes = express.Router();
  
 CartRoutes.get("/generate-guest", generateGuest);
+CartRoutes.post("/add-to-wishlist", authMiddelware, addWishlistCtrl);
 
 // All cart routes with auth
 CartRoutes.post("/add-cart", authMiddelware, addCartCtrl);

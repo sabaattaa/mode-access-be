@@ -5,7 +5,7 @@ import { productRoutes } from "./adminRoutes/productRoutes.js";
 import { inventoryRoutes } from "./adminRoutes/inventory.js";
 import { mediaRoutes } from "./adminRoutes/media.js";
 import { CartRoutes } from "./customerRoutes/cartRoutes.js";
-// import { CartRoutes } from "./customerRoutes/cartRoutes.js"; 
+import { orderRoutes } from "./customerRoutes/oredrRoutes.js"; 
 
 export const AllRoutes = express.Router();
 
@@ -20,3 +20,4 @@ AllRoutes.use("/media", mediaRoutes);
 // CUSTOMER ROUTES 
 
 AllRoutes.use("/cart", CartRoutes);
+AllRoutes.use("/oredr", orderRoutes);

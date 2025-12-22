@@ -6,6 +6,7 @@ import { inventoryRoutes } from "./adminRoutes/inventory.js";
 import { mediaRoutes } from "./adminRoutes/media.js";
 import { CartRoutes } from "./customerRoutes/cartRoutes.js";
 import { orderRoutes } from "./customerRoutes/oredrRoutes.js"; 
+import { socialLinksRoutes } from "./customerRoutes/socialLinksRoutes.js";
 
 export const AllRoutes = express.Router();
 
@@ -21,3 +22,4 @@ AllRoutes.use("/media", mediaRoutes);
 
 AllRoutes.use("/cart", CartRoutes);
 AllRoutes.use("/oredr", orderRoutes);
+AllRoutes.use("/social-links", socialLinksRoutes);

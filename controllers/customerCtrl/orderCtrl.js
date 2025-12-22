@@ -15,11 +15,11 @@ import { api_response } from "../../utils/response.js";
 // Add to Order
 export const addOrderCtrl = async (req, res) => {
     try {
-        const { user_id, total_price, payment_method, shipping_address, order_items } = req.body;
+        const { user_id, total_price, payment_method, shipping_address, order_items,order_no } = req.body;
 
 
         const response = await addOrderSrvc({
-            user_id, total_price, payment_method, shipping_address, order_items
+            user_id, total_price, payment_method, shipping_address, order_items,order_no
         });
 
         return res
@@ -95,7 +95,7 @@ export const getAllOrdersCtrl = async (req, res) => {
 
         if (!id) {
             return res.status(400).json(
-                api_response("FAIL", "User ID or Guest ID is required", null, null)
+                api_response("FAIL", "User ID is required", null, null)
             );
         }
 
@@ -110,39 +110,14 @@ export const getAllOrdersCtrl = async (req, res) => {
     }
 };
 
-// Clear All Order Items
-export const updateOrderCtrl = async (req, res) => {
-    try {
-        const { quantity, userId } = req.body;
-        const { id } = req.params;
-        if (!id) {
-            return api_response("FAIL", "ID is required.", null,)
-        }
-        if (quantity < 1) {
-            return api_response("FAIL", "Quentity must grater then 1.", null,)
-        }
-        const response = await updateOrderSrvc(id, quantity, userId);
-        return res.status(response.status === "SUCCESS" ? 200 : 400).json(response);
-
-    } catch (error) {
-        return res.status(500).json(
-            api_response("FAIL", "Clear Order failed", null, error.message)
-        );
-    }
-};
 
 // Delete Order Item
 export const deleteOrderCtrl = async (req, res) => {
     try {
-
+        
         const { id } = req.params;
-
-        if (!id) {
-            return res.status(400).json(
-                api_response("FAIL", "Order ID is required", null)
-            );
-        }
-
+        
+        
         const response = await deleteOrderSrvc(id);
         return res.status(response.status === "SUCCESS" ? 200 : 400).json(response);
 
@@ -155,3 +130,24 @@ export const deleteOrderCtrl = async (req, res) => {
 
 
 
+
+// // Clear All Order Items
+// export const updateOrderCtrl = async (req, res) => {
+//     try {
+//         const { quantity, userId } = req.body;
+//         const { id } = req.params;
+//         if (!id) {
+//             return api_response("FAIL", "ID is required.", null,)
+//         }
+//         if (quantity < 1) {
+//             return api_response("FAIL", "Quentity must grater then 1.", null,)
+//         }
+//         const response = await updateOrderSrvc(id, quantity, userId);
+//         return res.status(response.status === "SUCCESS" ? 200 : 400).json(response);
+
+//     } catch (error) {
+//         return res.status(500).json(
+//             api_response("FAIL", "Clear Order failed", null, error.message)
+//         );
+//     }
+// };

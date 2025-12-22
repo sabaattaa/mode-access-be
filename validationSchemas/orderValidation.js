@@ -4,6 +4,7 @@ export const OrderSchema = z.object({
   // user_id: z.string().min(1, 'User ID is required'),
 
   total_price: z.number().positive('Total price must be positive'),
+  // order_no: z.string('Order No is required'),
 
   order_items: z.array(
     z.object({

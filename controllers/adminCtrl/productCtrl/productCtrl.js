@@ -136,16 +136,14 @@ export const deleteProductCtrl = async (req, res) => {
 };
 
 export const importProductCtrl = (req, res) => {
-
-    console.log("Body", req.body)
+ 
     res.status(200).json({
         "message": "deleteProductCtrl Product"
     })
 }
 
 export const exportProductCtrl = (req, res) => {
-
-    console.log("Body", req.body)
+ 
     res.status(200).json({
         "message": "deleteProductCtrl Product"
     })

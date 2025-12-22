@@ -167,8 +167,7 @@ export const deleteCartCtrl = async (req, res) => {
 export const addWishlistCtrl = async (req, res) => {
 
     try {
-
-        console.log("wwwwwwwwwwsdsw", req.user)
+ 
         const { id } = req.params;
 
         if (!id) {

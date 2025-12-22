@@ -2,7 +2,7 @@
 import mongoose from "mongoose";
 
 
-const userRegisterModel = new mongoose.Schema({
+const userModel = new mongoose.Schema({
     name: {
         type: String,
         required: [true, "Name is required"],
@@ -20,13 +20,13 @@ const userRegisterModel = new mongoose.Schema({
         minlength: [6, "Password must be at least 6 characters"],
         trim: true
     },
-    termsCondition: {
+    agree_terms_and_conditions: {
         type: Boolean,
         required: [true, "Terms and condition must be true"]
     }
 });
 
-export default mongoose.model("UserRegister", userRegisterModel);
+export default mongoose.model("User", userModel);
 
 
 

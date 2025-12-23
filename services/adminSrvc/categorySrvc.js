@@ -34,9 +34,11 @@ export const getCategorySrvc = async (query) => {
         const filter = {};
         if (id) filter._id = id;
         if (search) filter.name = { $regex: search, $options: "i" };
-        if (status) filter.status = status;
+        if (status && status !=="all") filter.status = status;
         if (featured !== undefined) filter.featured = featured === "true";
 
+
+        console.log("filter",filter)
         // Build sort object
         let sort = {};
         if (orderType) {

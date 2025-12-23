@@ -1,6 +1,5 @@
 import express from "express";
-import {
-    generateGuest,
+import { 
     addCartCtrl,
     getAllCartsCtrl,
     deleteCartCtrl,
@@ -11,7 +10,7 @@ import { authMiddelware } from "../../middlewares/authMiddleware/authMiddelware.
 
 export const CartRoutes = express.Router();
  
-CartRoutes.get("/generate-guest", generateGuest);
+
 CartRoutes.post("/add-to-wishlist", authMiddelware, addWishlistCtrl);
 
 // All cart routes with auth

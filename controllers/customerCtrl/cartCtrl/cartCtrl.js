@@ -1,6 +1,4 @@
-// controllers/customerController/cartController.js
-import { v4 as uuidv4 } from "uuid";
-import jwt from "jsonwebtoken";
+ 
 import {
     addCartSrvc,
     getCartsSrvc,
@@ -11,38 +9,6 @@ import { api_response } from "../../../utils/response.js";
 import { findProduct } from "../../../services/adminSrvc/productSrvc.js";
 import Guest from "../../../models/customerModels/guestModel.js";
 
-// Generate Guest ID
-export const generateGuest = async (req, res) => {
-    try {
-        const guestId = `guest_${uuidv4()}`;
-
-        const key = process.env.JWT_SECRET;
-
-        const token = jwt.sign(
-            { guest_id: guestId, type: "guest" },
-            key,
-        );
-        const guest = await Guest.create({ guest_id: guestId });
-
-        return res.status(200).json(
-            api_response(
-                "SUCCESS",
-                "Guest token generated successfully",
-                { token }
-            )
-        );
-
-    } catch (error) {
-        return res.status(500).json(
-            api_response(
-                "FAIL",
-                "Failed to generate guest ID",
-                null,
-                error.message
-            )
-        );
-    }
-};
 
 // Add to Cart
 export const addCartCtrl = async (req, res) => {

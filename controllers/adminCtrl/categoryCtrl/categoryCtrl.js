@@ -1,23 +1,47 @@
 import { addCategorySrvc, deleteCategorySrvc, exportToExcelSrvc, getCategorySrvc, updateCategorySrvc } 
 from "../../../services/adminSrvc/categorySrvc.js";
+import { api_response } from "../../../utils/response.js";
  
 //   create category  
 
 export const addCategoryCtrl = async (req, res) => {
-
+  try {
     const data = req.body;
+     
+    if (!req.file) {
+      return res.status(400).json(
+        api_response(
+          "FAIL",
+          "Category Image is required.",
+          null,
+          "Category Image is required."
+        )
+      );
+    }
  
     data.category_img = req.file.path;
+ 
+    if (typeof data.featured === 'string') {
+      data.featured = data.featured === 'true';
+    }
+ 
+    if (data.parentId === '' || data.parentId === 'null') {
+      data.parentId = null;
+    }
 
     const categorySrvcRes = await addCategorySrvc(data);
-
-    return res.status(200).json(
-
-        categorySrvcRes
-
+    
+    return res.status(categorySrvcRes.status === 'SUCCESS' ? 200 : 400).json(
+      categorySrvcRes
     );
+    
+  } catch (error) {
+    console.error("Controller Error:", error);
+    return res.status(500).json(
+      api_response("FAIL", "Server error", null, error.message)
+    );
+  }
 };
-
 
 
 //   get gategory  

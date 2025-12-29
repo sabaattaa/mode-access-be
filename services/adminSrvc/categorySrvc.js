@@ -1,5 +1,6 @@
 
 import Category from "../../models/adminModel/categoryModel.js"; 
+import { buildCategoryTree } from "../../utils/buildTree.js";
 import { api_response } from "../../utils/response.js";
 import XLSX from "xlsx";
 
@@ -27,28 +28,28 @@ export const addCategorySrvc = async (data) => {
 
 export const getCategorySrvc = async (query) => {
     try {
-        const { id, search, status, featured, orderType } = query;
-        console.log("search:", search);
+        const { id, search, status, featured, customOrder } = query;
 
         // Build dynamic filter
         const filter = {};
         if (id) filter._id = id;
         if (search) filter.name = { $regex: search, $options: "i" };
-        if (status && status !=="all") filter.status = status;
+        if (status && status !== "all") filter.status = status;
         if (featured !== undefined) filter.featured = featured === "true";
 
-
-        console.log("filter",filter)
         // Build sort object
         let sort = {};
-        if (orderType) {
-            if (orderType === "a-to-z") sort = { name: 1 };
-            else if (orderType === "z-to-a") sort = { name: -1 };
-            else if (orderType === "newest") sort = { createdAt: -1 };
-        }
+        if (customOrder === "name-asc") sort = { name: 1 };
+        else if (customOrder === "name-desc") sort = { name: -1 };
+        else if (customOrder === "newest") sort = { createdAt: -1 };
 
-
+        // Fetch flat categories
         const categories = await Category.find(filter).sort(sort);
+
+        // 🔥 Build tree structure
+        const categoryTree = buildCategoryTree(categories);
+
+        // Counts (unchanged)
         const [
             totalCategories,
             activeCategories,
@@ -56,7 +57,6 @@ export const getCategorySrvc = async (query) => {
             draftCategories,
             parentCategories,
             subCategories,
-            // categoriesWithProductCount
         ] = await Promise.all([
             Category.countDocuments(),
             Category.countDocuments({ status: "active" }),
@@ -64,39 +64,21 @@ export const getCategorySrvc = async (query) => {
             Category.countDocuments({ status: "draft" }),
             Category.countDocuments({ parent_category: null }),
             Category.countDocuments({ parent_category: { $ne: null } }),
-            // Category.aggregate([
-            //     {
-            //         $lookup: {
-            //             from: "products",
-            //             localField: "_id",
-            //             foreignField: "category_id",
-            //             as: "products"
-            //         }
-            //     },
-            //     {
-            //         $addFields: {
-            //             totalProducts: { $size: "$products" }
-            //         }
-            //     },
-            //     { $project: { products: 0 } }
-            // ])
         ]);
-        const counts = {
-            totalCategories,
-            activeCategories,
-            inactiveCategories,
-            draftCategories,
-            parentCategories,
-            subCategories,
-            // categoriesWithProductCount
-        }
 
         return api_response(
             "SUCCESS",
             "Categories fetched successfully.",
             {
-                counts,
-                categories,
+                counts: {
+                    totalCategories,
+                    activeCategories,
+                    inactiveCategories,
+                    draftCategories,
+                    parentCategories,
+                    subCategories,
+                },
+                categories: categoryTree,  
             }
         );
     } catch (e) {
@@ -115,7 +97,7 @@ export const updateCategorySrvc = async (req) => {
     try {
         const data = req.body;
         if (req.file) {
-            data.category_img = req.file.filename;
+            data.category_img = req.file.path;
         }
         const { id } = req.query;
         const { name, slug, featured, category_img, parent_category, status, description } = data;

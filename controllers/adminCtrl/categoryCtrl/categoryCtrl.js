@@ -67,9 +67,7 @@ export const updateCategoryCtrl = async (req, res) => {
     const updateCategoryRes = await updateCategorySrvc(req)
 
     return res.status(200).json(
-
         updateCategoryRes
-
     );
 }
 

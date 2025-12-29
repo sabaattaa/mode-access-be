@@ -57,17 +57,13 @@ const productModal = new mongoose.Schema(
       required: [true, "Stock quantity is required"],
       min: [0, "Stock quantity cannot be negative"],
     },
-product_id: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: "Product",
-  required: true
-},
+   
     product_imgs: [
       {
         type: String,
         required: true,
       },
-      
+
     ],
   },
   { timestamps: true }

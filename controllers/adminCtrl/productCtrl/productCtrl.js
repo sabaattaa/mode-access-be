@@ -24,7 +24,7 @@ export const addProductCtrl = async (req, res) => {
 
 export const getAllProductsCtrl = async (req, res) => {
     try {
-        const { id, search, category, status, filterType } = req.query;
+        const { id, search, category, status, customOrder } = req.query;
 
         let filter = {};
 
@@ -42,36 +42,36 @@ export const getAllProductsCtrl = async (req, res) => {
 
         let sort = {};
 
-        switch (filterType) {
-            case "newfirst":
+        switch (customOrder) {
+            case "newest":
                 sort = { createdAt: -1 };
                 break;
 
-            case "oldestFirst":
+            case "oldest":
                 sort = { createdAt: 1 };
                 break;
 
-            case "priceHtoL":
+            case "price-high":
                 sort = { price: -1 };
                 break;
 
-            case "priceLtoH":
+            case "price-low":
                 sort = { price: 1 };
                 break;
 
-            case "nameAtoZ":
+            case "name-asc":
                 sort = { name: 1 };
                 break;
 
-            case "nameZtoA":
+            case "name-desc":
                 sort = { name: -1 };
                 break;
 
-            case "stockLtoH":
+            case "stock-low":
                 sort = { stock_quantity: 1 };
                 break;
 
-            case "stockHtoL":
+            case "stock-high":
                 sort = { stock_quantity: -1 };
                 break;
 
@@ -123,8 +123,8 @@ export const updateProductCtrl = async (req, res) => {
 //   Delete Product  
 export const deleteProductCtrl = async (req, res) => {
   try {
+      console.log("sss",  req.params)
     const { id } = req.params;
-
     const response = await deleteProductSrvc(id);
     res.status(200).json(response);
 

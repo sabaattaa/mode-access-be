@@ -1,9 +1,9 @@
 import express from "express";
-import { authMiddelware } from "../../middlewares/authMiddleware/authMiddelware.js";
+import { authMiddleware } from "../../middlewares/authMiddleware/authMiddleware.js";
 import {  getSocialLinksModal, updateSocialLinksModal } from "../../controllers/customerCtrl/socialLinksCtrl.js";
  
 export const socialLinksRoutes = express.Router();
   
-socialLinksRoutes.post("/", authMiddelware,  updateSocialLinksModal);
-socialLinksRoutes.get("/", authMiddelware,  getSocialLinksModal);
+socialLinksRoutes.post("/", authMiddleware,  updateSocialLinksModal);
+socialLinksRoutes.get("/", authMiddleware,  getSocialLinksModal);
  

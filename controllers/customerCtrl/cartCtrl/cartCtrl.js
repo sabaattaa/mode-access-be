@@ -1,4 +1,4 @@
- 
+
 import {
     addCartSrvc,
     getCartsSrvc,
@@ -8,17 +8,29 @@ import {
 import { api_response } from "../../../utils/response.js";
 import { findProduct } from "../../../services/adminSrvc/productSrvc.js";
 import Guest from "../../../models/customerModels/guestModel.js";
+import User from "../../../models/authModel/userModel.js";
+import mongoose from "mongoose";
 
 
 // Add to Cart
 export const addCartCtrl = async (req, res) => {
     try {
-        const { product_id, quantity = 1, guest_id, user_id } = req.body;
+        const { product_id, } = req.body;
+        const { guest_id, user_id } = req.user;
 
-        if (!product_id || !quantity) {
-            return res.status(400).json(
-                api_response("FAIL", "Product ID and quantity are required", null)
-            );
+        let user = null;
+        if (user_id) {
+            user = await User.findById({ _id: user_id });
+
+        }
+        if (!user && guest_id) {
+            user = await Guest.findOne({ guest_id: guest_id });
+        }
+
+        if (!user) { return api_response("FAIL", "user or guest  not found", null); }
+
+        if (!product_id || !mongoose.Types.ObjectId.isValid(product_id)) {
+            return api_response("FAIL", "Invalid product id", null);
         }
 
         const product = await findProduct(product_id);
@@ -28,29 +40,14 @@ export const addCartCtrl = async (req, res) => {
             );
         }
 
-        const { price, stock_quantity } = product;
-
-        if (quantity > stock_quantity) {
-            return res.status(400).json(
-                api_response(
-                    "FAIL",
-                    `${quantity} product not available, stock is ${stock_quantity}`,
-                    null
-                )
-            );
-        }
-
-        const totalPrice = quantity * price;
-
+        const { price, } = product;
         const response = await addCartSrvc({
             user_id,
             guest_id,
             product_id,
-            quantity,
             price,
-            total_price: totalPrice,
         });
-
+        console.log("response", response)
         return res
             .status(response.status === "SUCCESS" ? 200 : 400)
             .json(response);
@@ -66,16 +63,19 @@ export const addCartCtrl = async (req, res) => {
 // Get All Carts
 export const getAllCartsCtrl = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { guest_id, user_id } = req.user;
 
-        if (!id) {
+        console.log(!guest_id, "ddd", !guest_id || !user_id, "guest_id ,user_id", guest_id, user_id)
+
+
+        if (!guest_id && !user_id) {
             return res.status(400).json(
                 api_response("FAIL", "User ID or Guest ID is required", null, null)
             );
         }
 
 
-        const response = await getCartsSrvc(id);
+        const response = await getCartsSrvc(guest_id, user_id);
         return res.status(200).json(response);
 
     } catch (error) {
@@ -133,7 +133,7 @@ export const deleteCartCtrl = async (req, res) => {
 export const addWishlistCtrl = async (req, res) => {
 
     try {
- 
+
         const { id } = req.params;
 
         if (!id) {

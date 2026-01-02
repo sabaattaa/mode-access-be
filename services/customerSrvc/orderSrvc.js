@@ -3,36 +3,40 @@ import Order from "../../models/customerModels/orderModels/orderModel.js";
 import OrderItem from "../../models/customerModels/orderModels/orderItemModel.js";
 import { api_response } from "../../utils/response.js";
 import mongoose from "mongoose";
+import { findProduct } from "../adminSrvc/productSrvc.js";
 
 
 //  Add to Order Service
-export const addOrderSrvc = async (data) => {
+export const addOrderSrvc = async (user_id, data) => {
     try {
-        const {
-            user_id,
-            payment_method,
-            shipping_address,
-            order_items
-        } = data;
 
-        if (!order_items || !order_items.length) {
-            throw new Error("Order items are required");
-        }
+        const { phone, coupon_code, payment_method, shipping_address, order_items, } = data;
+
+
 
 
         let total_price = 0;
-        order_items.forEach(item => {
-            total_price += item.quantity * item.price;
-        });
 
+
+        for (const item of order_items) {
+            const product = await findProduct(item.product_id);
+            const price = item.quantity * product.price;
+            total_price += price;
+        }
 
         const order_no = `ORD-${Date.now()}`;
-
-
+        console.log("ssss", order_no,
+            phone,
+            user_id,
+            total_price,
+            payment_method,
+            shipping_address)
         const order = await Order.create({
             order_no,
+            phone,
             user_id: user_id || null,
             total_price,
+            coupon_code,
             payment_method,
             shipping_address
         });
@@ -63,7 +67,7 @@ export const addOrderSrvc = async (data) => {
 // Get All Orders Service
 export const getOrdersSrvc = async (filter) => {
     try {
-        const Orders = await Order.find(filter).sort({ createdAt: -1 });
+        const Orders = await Order.find().sort({ createdAt: -1 });
         console.log("sssssslk;lk;", Orders)
 
         if (!Orders || Orders.length === 0) {
@@ -145,8 +149,8 @@ export const updateOrderSrvc = async (id, status) => {
 // Delete Order Service (Soft delete) 
 export const deleteOrderSrvc = async (orderId, user_id) => {
     try {
-        const filter = { _id: orderId, }; 
-        if ( mongoose.Types.ObjectId.isValid(user_id)) {
+        const filter = { _id: orderId, };
+        if (mongoose.Types.ObjectId.isValid(user_id)) {
             filter.user_id = user_id;
         }
         const order = await Order.findOne(filter);

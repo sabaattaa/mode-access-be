@@ -3,17 +3,11 @@ import mongoose from "mongoose";
 const orderSchema = new mongoose.Schema({
   order_no: {
     type: String,
-    unique: true,
-    required: true
+    require: true
   },
-  user_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true
-  },
-  total_price: {
-    type: Number,
-    required: true
+  phone: {
+    type: String,
+    require: true
   },
   status: {
     type: String,
@@ -22,7 +16,7 @@ const orderSchema = new mongoose.Schema({
   },
   payment_method: {
     type: String,
-    enum: ["COD", "ONLINE"],
+    enum: ["COD", "ONLINE", "JazzCash"],
     required: true
   },
   shipping_address: {
@@ -32,6 +26,10 @@ const orderSchema = new mongoose.Schema({
   coupon_code: {
     type: String,
     default: null
+  },
+  total_price: {
+    type: String,
+    required: true
   }
 }, { timestamps: true });
 

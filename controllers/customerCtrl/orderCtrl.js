@@ -15,12 +15,10 @@ import { api_response } from "../../utils/response.js";
 // Add to Order
 export const addOrderCtrl = async (req, res) => {
     try {
-        const {  payment_method, shipping_address, order_items, } = req.body;
-
+       
+ 
         const user_id = req.user?._id;
-        const response = await addOrderSrvc({
-            user_id,  payment_method, shipping_address, order_items,
-        });
+        const response = await addOrderSrvc(user_id,req.body);
 
         return res
             .status(response.status === "SUCCESS" ? 200 : 400)
@@ -33,21 +31,42 @@ export const addOrderCtrl = async (req, res) => {
     }
 };
 
- 
+
+// Get All Orders
+export const getAllUserOrdersCtrl = async (req, res) => {
+    try {
+
+        const order_id = req.params?.id || null
+        const user_id = req.user._id;
+
+        const filter = {
+            user_id
+        };
+        if (order_id) filter._id = order_id;
+        console.log("ssssss", filter, req.user)
+        const response = await getOrdersSrvc(filter);
+        return res.status(200).json(response);
+
+    } catch (error) {
+        return res.status(500).json(
+            api_response("FAIL", "Something went wrong", null, error.message)
+        );
+    }
+};
 
 
 // Get All Orders
 export const getAllOrdersCtrl = async (req, res) => {
     try {
-       
-        const order_id = req.params?.id||null
-        const  user_id = req.user._id;
-        
-        const filter = { 
+
+        const order_id = req.params?.id || null
+        const user_id = req.user._id;
+
+        const filter = {
             user_id
         };
-        if (order_id) filter._id = order_id;  
-        console.log("ssssss", filter,req.user )
+        if (order_id) filter._id = order_id;
+        console.log("ssssss", filter, req.user)
         const response = await getOrdersSrvc(filter);
         return res.status(200).json(response);
 
@@ -65,13 +84,13 @@ export const deleteOrderCtrl = async (req, res) => {
 
         const { id } = req.params;
         const user_id = req.user._id
-if(!id || !user_id){
-   return res.status(500).json(
-            api_response("FAIL", "Order id nad User id is required", null, error.message)
-        ); 
-}
+        if (!id || !user_id) {
+            return res.status(500).json(
+                api_response("FAIL", "Order id nad User id is required", null, error.message)
+            );
+        }
 
-        const response = await deleteOrderSrvc(id,user_id);
+        const response = await deleteOrderSrvc(id, user_id);
         return res.status(response.status === "SUCCESS" ? 200 : 400).json(response);
 
     } catch (error) {
@@ -86,25 +105,25 @@ if(!id || !user_id){
 
 // Update Order Items
 export const updateOrderCtrl = async (req, res) => {
-  try {
-    const { status } = req.body;
-    const { id } = req.params;
+    try {
+        const { status } = req.body;
+        const { id } = req.params;
 
-    if (!id) {
-      return res
-        .status(400)
-        .json(api_response("FAIL", "Order ID is required.", null));
-    }   
+        if (!id) {
+            return res
+                .status(400)
+                .json(api_response("FAIL", "Order ID is required.", null));
+        }
 
-    const response = await updateOrderSrvc(id,status);
+        const response = await updateOrderSrvc(id, status);
 
-    return res
-      .status(response.status === "SUCCESS" ? 200 : 400)
-      .json(response);
+        return res
+            .status(response.status === "SUCCESS" ? 200 : 400)
+            .json(response);
 
-  } catch (error) {
-    return res
-      .status(500)
-      .json(api_response("FAIL", "Update Order failed", null, error.message));
-  }
+    } catch (error) {
+        return res
+            .status(500)
+            .json(api_response("FAIL", "Update Order failed", null, error.message));
+    }
 };

@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../../models/authModel/userModel.js";
-import Guest from "../../models/customerModels/guestModel.js";
-
+ 
 export const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -19,31 +18,20 @@ export const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ message: "Invalid or expired token" });
     }
 
-    console.log("decodeddecoded", decoded)
-
     let authEntity = null;
-
-    // User authentication
+ 
     if (decoded?.id) {
-    console.log("1111111iser", decoded)
-
       authEntity = await User.findById(decoded.id).select("-password");
     }
-
-    //   Guest authentication
-    if (!authEntity && decoded?.guest_id) {
-    console.log("222222iser", decoded)
-
-      authEntity = await Guest.findOne({ guest_id: decoded.guest_id }).select("-password");
-    }
-    console.log("33333", authEntity)
-
     if (!authEntity) {
       return res.status(401).json({ message: "Unauthorized access" });
     }
 
-    req.user = authEntity;
-    req.authType = decoded?.id ? "user" : "guest";
+    const { _id, name, email, } = authEntity; 
+    const user = {
+      userId: _id, name, email
+    }
+    req.user = user;
 
     next();
   } catch (error) {

@@ -83,6 +83,5 @@ export const login = async (req, res) => {
 
 export const logout = (req, res) => {
     const { name, email, password, agree_terms_and_conditions } = req.body;
-    console.log("logout Api", req.body)
     res.json({ message: "Login API Working", name, email, password, agree_terms_and_conditions });
 };

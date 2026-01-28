@@ -1,7 +1,7 @@
 export const inventoryCountCtrl = (req, res) => {
 
     const { id, search, status, orderType } = req.query
-    console.log("search", search)
+     
     if (id) {
 
     } else {
@@ -15,7 +15,7 @@ export const inventoryCountCtrl = (req, res) => {
 export const getInventoryAlertsCtrl = (req, res) => {
 
     const { id, search, status, orderType } = req.query
-    console.log("search", search)
+ 
     if (id) {
 
     } else {

@@ -6,10 +6,7 @@ const cartSchema = new mongoose.Schema({
         ref: "User",
         default: null,
     },
-    guest_id: {
-        type: String,
-        default: null,
-    },
+  
     product_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",
@@ -37,8 +34,8 @@ const cartSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-cartSchema.index({ user_id: 1, product_id: 1 });
-cartSchema.index({ guest_id: 1, product_id: 1 });
+cartSchema.index({ user_id: 1, product_id: 1 }); 
 
 const Cart = mongoose.model("Cart", cartSchema);
 export default Cart;
+

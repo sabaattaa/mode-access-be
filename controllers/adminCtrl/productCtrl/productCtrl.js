@@ -122,8 +122,7 @@ export const updateProductCtrl = async (req, res) => {
 
 //   Delete Product  
 export const deleteProductCtrl = async (req, res) => {
-  try {
-      console.log("sss",  req.params)
+  try { 
     const { id } = req.params;
     const response = await deleteProductSrvc(id);
     res.status(200).json(response);

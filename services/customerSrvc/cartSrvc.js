@@ -8,8 +8,7 @@ import mongoose from "mongoose";
 export const addCartSrvc = async (data) => {
     try {
         const {
-            user_id,
-            guest_id,
+            userId,
             product_id,
             price,
             quantity = 1,
@@ -19,10 +18,10 @@ export const addCartSrvc = async (data) => {
 
         //   Build query (user OR guest)
         const query = { product_id };
-        if (user_id) query.user_id = user_id;
-        else if (guest_id) query.guest_id = guest_id;
+        if (userId) query.user_id = userId;
+
         else {
-            return api_response("FAIL", "User or guest required", null);
+            return api_response("FAIL", "User required", null);
         }
 
         //  Check existing cart item
@@ -54,12 +53,11 @@ export const addCartSrvc = async (data) => {
         //   Create new cart item
         const newCart = await Cart.create({
             product_id,
-            quantity:Number(quantity),
+            quantity: Number(quantity),
             price: Number(price),
-            total_price:Number(price) * Number(quantity),
+            total_price: Number(price) * Number(quantity),
             is_active: true,
-            ...(user_id && { user_id: user_id }),
-            ...(guest_id && { guest_id }),
+            ...(userId && { user_id: userId }),
         });
         const populatedCart = await Cart.findById(newCart._id)
             .populate("product_id", "name price product_imgs");
@@ -77,15 +75,14 @@ export const addCartSrvc = async (data) => {
 };
 
 // Get All Carts Service
-export const getCartsSrvc = async (guest_id,user_id) => {
+export const getCartsSrvc = async (user_id) => {
     try {
         let filter = {};
         if (mongoose.Types.ObjectId.isValid(user_id)) {
-            filter = { user_id};
+            filter = { user_id };
         } else {
             filter = { guest_id };
         }
-
 
         const carts = await Cart.find(filter)
             .populate("product_id", "name price product_imgs description stock_quantity")

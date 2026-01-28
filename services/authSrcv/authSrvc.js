@@ -11,34 +11,45 @@ export const createUserSrcv = async (data) => {
 
   const hashedPassword = await bcrypt.hash(data.password, 10);
 
-  const user = await User.create({
+  const { _id, name, email, agree_terms_and_conditions, } = await User.create({
     ...data,
     password: hashedPassword,
   });
 
-  return api_response("SUCCESS", "User registered successfully", user);
+  const token = genrateUserTOken({_id, name, email, agree_terms_and_conditions,})
+  const response = { _id, name, email, agree_terms_and_conditions, token };
+
+  return api_response("SUCCESS", "User registered successfully", response);
 };
 
 export const loginUserSrvc = async ({ email, password }) => {
-  const user = await User.findOne({ email });
-  
+  const user = await User.findOne({ email }).lean();
+
   if (!user) {
     return api_response("FAIL", "Invalid email or password1", null);
   }
-
+ 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     return api_response("FAIL", "Invalid email or password2", null);
   }
-
-  const token = jwt.sign(
-    { id: user._id },
-    process.env.JWT_SECRET,
-    // { expiresIn: "1h" }
-  );
-
+ 
+  delete user.password;
+  const token = genrateUserTOken(user);
   return api_response("SUCCESS", "Login successful", {
     token,
     user,
   });
 };
+
+
+export const genrateUserTOken = (user) => {
+  const token = jwt.sign(
+    { id: user._id, name: user.name, email: user.email },
+    process.env.JWT_SECRET,
+    // { expiresIn: "1h" }
+  );
+
+  return token
+
+}

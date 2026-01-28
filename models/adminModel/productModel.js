@@ -6,7 +6,7 @@ const productModal = new mongoose.Schema(
       type: String,
       required: [true, "Product name is required"],
       trim: true,
-      minlength: [3, "Name must be at least 3 characters"],
+      // minlength: [3, "Name must be at least 3 characters"],
     },
 
     sku: {
@@ -20,7 +20,7 @@ const productModal = new mongoose.Schema(
       type: String,
       required: [true, "Product description is required"],
       trim: true,
-      minlength: [10, "Description must be at least 10 characters"],
+      // minlength: [10, "Description must be at least 10 characters"],
     },
 
     status: {

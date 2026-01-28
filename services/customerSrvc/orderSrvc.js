@@ -25,20 +25,18 @@ export const addOrderSrvc = async (user_id, data) => {
         }
 
         const order_no = `ORD-${Date.now()}`;
-        console.log("ssss", order_no,
-            phone,
-            user_id,
-            total_price,
-            payment_method,
-            shipping_address)
+        const payment_status = `pending`;
+
         const order = await Order.create({
+            user_id,
             order_no,
             phone,
             user_id: user_id || null,
             total_price,
             coupon_code,
             payment_method,
-            shipping_address
+            shipping_address,
+            payment_status
         });
 
 
@@ -65,62 +63,82 @@ export const addOrderSrvc = async (user_id, data) => {
 
 
 // Get All Orders Service
-export const getOrdersSrvc = async (filter) => {
+export const getOrdersSrvc = async (filter = {}, sort = { createdAt: -1 }) => {
     try {
-        const Orders = await Order.find().sort({ createdAt: -1 });
-        console.log("sssssslk;lk;", Orders)
 
-        if (!Orders || Orders.length === 0) {
+
+        const Orders = await Order.find(filter)
+            .sort(sort)
+            .populate("user_id");
+
+        if (!Orders?.length) {
             return api_response("FAIL", "No orders found", null);
         }
 
-        // Map each order with its items
-        const ordersWithItems = await Promise.all(
-            Orders.map(async (order) => {
-                const items = await OrderItem.find({ order_id: order._id })
-                    .populate("product_id", "name price product_imgs description");
-                console.log("itemsssss", items)
-                return {
-                    id: order._id,
-                    order_no: order.order_no,
-                    user_id: order.user_id,
-                    total_price: order.total_price,
-                    payment_method: order.payment_method,
-                    shipping_address: order.shipping_address,
-                    coupon_code: order.coupon_code,
-                    status: order.status,
-                    createdAt: order.createdAt,
-                    updatedAt: order.updatedAt,
-                    order_items: items.map((item) => ({
-                        product_id: item.product_id,
-                        // name: item.product_id.name,
-                        price: item.price,
-                        quantity: item.quantity,
-                        // product_imgs: item.product_id.product_imgs,
-                        // description: item.product_id.description,
-                    })),
-                };
-            })
-        );
+        const orderIds = Orders.map(o => o._id);
 
-        // Summary calculation
-        const OrderSummary = {
+        // 🔥 ONE query instead of loop
+        const items = await OrderItem.find({ order_id: { $in: orderIds } })
+            .populate({
+                path: "product_id",
+                select: "category name sku slug price product_imgs description stock_quantity status featured",
+                populate: { path: "category", select: "name" }
+            });
+
+        // group items by order
+        const itemsByOrder = {};
+        items.forEach(item => {
+            const key = item.order_id.toString();
+            if (!itemsByOrder[key]) itemsByOrder[key] = [];
+            itemsByOrder[key].push(item);
+        });
+
+        const ordersWithItems = Orders.map(order => {
+            const orderItems = itemsByOrder[order._id.toString()] || [];
+
+            return {
+                id: order._id,
+                order_no: order.order_no,
+                user_id: order.user_id,
+                guest_id: order.guest_id, // ✅ direct string
+                total_price: order.total_price,
+                payment_method: order.payment_method,
+                shipping_address: order.shipping_address,
+                coupon_code: order.coupon_code,
+                status: order.status,
+                phone: order.phone,
+                createdAt: order.createdAt,
+                updatedAt: order.updatedAt,
+                payment_status: order.payment_status,
+                order_items: orderItems.map(item => ({
+                    product_id: item.product_id,
+                    price: item.price,
+                    quantity: item.quantity
+                }))
+            };
+        });
+
+        const summary = {
             total_orders: Orders.length,
-            total_quantity: ordersWithItems.reduce((sum, order) => {
-                return sum + order.order_items.reduce((s, i) => s + i.quantity, 0);
-            }, 0),
-            subtotal: ordersWithItems.reduce((sum, order) => sum + order.total_price, 0),
+            pending_orders: Orders.filter(o => o.status === "pending").length,
+            processing_orders: Orders.filter(o => o.status === "processing").length,
+            shipped_orders: Orders.filter(o => o.status === "shipped").length,
+            delivered_orders: Orders.filter(o => o.status === "delivered").length,
+
+            subtotal: ordersWithItems.reduce((sum, o) => sum + Number(o.total_price), 0)
         };
+
 
         return api_response("SUCCESS", "Orders fetched successfully", {
             orders: ordersWithItems,
-            summary: OrderSummary,
+            summary
         });
 
     } catch (error) {
         return api_response("FAIL", error.message || "Order fetch failed", null, error);
     }
 };
+
 
 
 // update Order Service (Soft delete all)

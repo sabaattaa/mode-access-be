@@ -17,7 +17,7 @@ orderRoutes.get("/get-all-order", authMiddleware, getAllOrdersCtrl);
 
 
 orderRoutes.post("/place-order", authMiddleware, validate(OrderSchema), addOrderCtrl);
-orderRoutes.get("/get-all-user-order/:id", authMiddleware, getAllUserOrdersCtrl);
+orderRoutes.get("/get-all-user-order/", authMiddleware, getAllUserOrdersCtrl);
 orderRoutes.patch("/update-Order/:id", authMiddleware, updateOrderCtrl);
 orderRoutes.delete("/delete-order/:id", authMiddleware, deleteOrderCtrl);
 

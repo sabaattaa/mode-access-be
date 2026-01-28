@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
+  user_id: {
+    type: String,
+    require: true
+  },
   order_no: {
     type: String,
     require: true
@@ -11,7 +15,7 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "paid", "shipped", "delivered", "cancelled"],
+    enum: ["pending","confirmed","processing", "paid", "shipped", "delivered", "cancelled","refunded"],
     default: "pending"
   },
   payment_method: {
@@ -19,6 +23,12 @@ const orderSchema = new mongoose.Schema({
     enum: ["COD", "ONLINE", "JazzCash"],
     required: true
   },
+  payment_status: {
+    type: String,
+    enum: ["pending", "paid", "failed", "refunded"],
+    required: true
+  },
+
   shipping_address: {
     type: String,
     required: true

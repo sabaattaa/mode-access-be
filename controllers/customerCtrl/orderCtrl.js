@@ -15,10 +15,10 @@ import { api_response } from "../../utils/response.js";
 // Add to Order
 export const addOrderCtrl = async (req, res) => {
     try {
-       
- 
-        const user_id = req.user?._id;
-        const response = await addOrderSrvc(user_id,req.body);
+
+
+        const {userId} = req.user;
+        const response = await addOrderSrvc(userId, req.body);
 
         return res
             .status(response.status === "SUCCESS" ? 200 : 400)
@@ -37,13 +37,12 @@ export const getAllUserOrdersCtrl = async (req, res) => {
     try {
 
         const order_id = req.params?.id || null
-        const user_id = req.user._id;
+        const {userId} = req.user;
 
         const filter = {
-            user_id
+            userId
         };
-        if (order_id) filter._id = order_id;
-        console.log("ssssss", filter, req.user)
+        if (order_id) filter._id = order_id; 
         const response = await getOrdersSrvc(filter);
         return res.status(200).json(response);
 
@@ -59,15 +58,56 @@ export const getAllUserOrdersCtrl = async (req, res) => {
 export const getAllOrdersCtrl = async (req, res) => {
     try {
 
-        const order_id = req.params?.id || null
-        const user_id = req.user._id;
+        const { search, status, time, customOrder } = req.query
+   const filter = {};
+        if (status) {
+            filter.status = status;
+        }
 
-        const filter = {
-            user_id
-        };
-        if (order_id) filter._id = order_id;
-        console.log("ssssss", filter, req.user)
-        const response = await getOrdersSrvc(filter);
+        if (search) {
+            filter.$or = [
+                { order_no: { $regex: search, $options: "i" } },
+                { shipping_address: { $regex: search, $options: "i" } },
+                { phone: { $regex: search, $options: "i" } },
+                { guest_id: { $regex: search, $options: "i" } },
+            ];
+        }
+
+        if (time && time !== "all") {
+            const now = new Date();
+            let startDate;
+
+            if (time === "today") {
+                startDate = new Date(now.setHours(0, 0, 0, 0));
+            }
+
+            if (time === "week") {
+                startDate = new Date();
+                startDate.setDate(startDate.getDate() - 7);
+            }
+
+            if (time === "month") {
+                startDate = new Date();
+                startDate.setMonth(startDate.getMonth() - 1);
+            }
+
+            filter.createdAt = { $gte: startDate };
+        }
+
+        let sort = { createdAt: -1 };
+
+        if (customOrder === "oldest") {
+            sort = { createdAt: 1 };
+        }
+
+        if (customOrder === "highest") {
+            sort = { total_price: -1 };
+        }
+
+        if (customOrder === "lowest") {
+            sort = { total_price: 1 };
+        }
+         const response = await getOrdersSrvc(filter, sort);
         return res.status(200).json(response);
 
     } catch (error) {
@@ -83,14 +123,14 @@ export const deleteOrderCtrl = async (req, res) => {
     try {
 
         const { id } = req.params;
-        const user_id = req.user._id
-        if (!id || !user_id) {
+        const {userId} = req.user
+        if (!id || !userId) {
             return res.status(500).json(
                 api_response("FAIL", "Order id nad User id is required", null, error.message)
             );
         }
 
-        const response = await deleteOrderSrvc(id, user_id);
+        const response = await deleteOrderSrvc(id, userId);
         return res.status(response.status === "SUCCESS" ? 200 : 400).json(response);
 
     } catch (error) {

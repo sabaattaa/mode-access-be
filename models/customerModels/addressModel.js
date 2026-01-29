@@ -36,10 +36,10 @@ export const addressSchema = new mongoose.Schema({
 
 
 
-addressSchema.pre("save", async function (next) {
+addressSchema.pre("save", async function () {
 
     if (!this.isModified("isDefault") || this.isDefault === false) {
-        return next();
+        return ;
     }
 
     try {

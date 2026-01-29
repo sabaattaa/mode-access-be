@@ -30,9 +30,9 @@ export const addAddressSrvc = async (userId, data) => {
 
 
         const newAddress = await Address.create(payload);
-
-        // 5. Success Response
-        return api_response("SUCCESS", "Address added successfully", newAddress);
+ const allUserAddresses = await Address.find({ user_id: userId });
+         
+        return api_response("SUCCESS", "Address added successfully", allUserAddresses);
 
     } catch (error) {
         if (error.name === "ValidationError") {
@@ -65,15 +65,9 @@ export const getAddressSrvc = async (user_id) => {
 export const updateAddressSrvc = async (userId, addressId, updateData) => {
     try {
 
-        // Hum findOneAndUpdate use kar rahe hain with TWO conditions:
-        // a) _id: addressId (Ye address exist karta hai?)
-        // b) user: userId (Kya ye address is user ka hai?)
-        // Is tarah koi dusra user kisi aur ka address URL se change nahi kar sakta.
-
-        // NOTE: Agar aapke schema mein field ka naam 'user_id' hai, toh niche 'user' ko 'user_id' se replace kar dena.
         const filter = {
             _id: addressId,
-            user: userId
+            user_id: userId
         };
 
         const updatedAddress = await Address.findOneAndUpdate(

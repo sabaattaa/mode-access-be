@@ -4,6 +4,7 @@ import OrderItem from "../../models/customerModels/orderModels/orderItemModel.js
 import { api_response } from "../../utils/response.js";
 import mongoose from "mongoose";
 import { findProduct } from "../adminSrvc/productSrvc.js";
+import Cart from "../../models/customerModels/cartModel.js";
 
 
 //  Add to Order Service
@@ -51,6 +52,9 @@ export const addOrderSrvc = async (user_id, data) => {
 
         await OrderItem.insertMany(orderItemsPayload);
 
+
+        await Cart.deleteMany({ user_id: user_id });
+
         return api_response("SUCCESS", "Order placed successfully", {
             order,
             order_items: orderItemsPayload
@@ -66,10 +70,12 @@ export const addOrderSrvc = async (user_id, data) => {
 export const getOrdersSrvc = async (filter = {}, sort = { createdAt: -1 }) => {
     try {
 
+        console.log("wwwweee", filter)
 
         const Orders = await Order.find(filter)
             .sort(sort)
             .populate("user_id");
+        console.log("wwwweee Orders", filter)
 
         if (!Orders?.length) {
             return api_response("FAIL", "No orders found", null);

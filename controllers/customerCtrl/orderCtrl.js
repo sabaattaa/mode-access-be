@@ -40,7 +40,7 @@ export const getAllUserOrdersCtrl = async (req, res) => {
         const {userId} = req.user;
 
         const filter = {
-            userId
+            user_id:userId
         };
         if (order_id) filter._id = order_id; 
         const response = await getOrdersSrvc(filter);

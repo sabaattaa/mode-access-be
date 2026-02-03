@@ -3,7 +3,9 @@ import {
     addCartSrvc,
     getCartsSrvc,
     deleteCartSrvc,
-    updateCartSrvc
+    updateCartSrvc,
+    addWishlistSrvc,
+    deleteWishlistSrvc
 } from "../../../services/customerSrvc/cartSrvc.js";
 import { api_response } from "../../../utils/response.js";
 import { findProduct } from "../../../services/adminSrvc/productSrvc.js";
@@ -16,17 +18,17 @@ import mongoose from "mongoose";
 export const addCartCtrl = async (req, res) => {
     try {
         const { product_id, } = req.body;
-        const { userId,  } = req.user;
-         if (!product_id || !mongoose.Types.ObjectId.isValid(product_id)) {
+        const { userId, } = req.user;
+        if (!product_id || !mongoose.Types.ObjectId.isValid(product_id)) {
             return api_response("FAIL", "Invalid product id", null);
         }
- 
+
         let user = null;
         if (userId) {
             user = await User.findById({ _id: userId });
 
         }
-         
+
 
         if (!user) { return api_response("FAIL", "user not found", null); }
 
@@ -39,10 +41,10 @@ export const addCartCtrl = async (req, res) => {
 
         const { price, } = product;
         const response = await addCartSrvc({
-            userId, 
+            userId,
             product_id,
             price,
-        }); 
+        });
         return res
             .status(response.status === "SUCCESS" ? 200 : 400)
             .json(response);
@@ -58,9 +60,7 @@ export const addCartCtrl = async (req, res) => {
 // Get All Carts
 export const getAllCartsCtrl = async (req, res) => {
     try {
-        const {  userId } = req.user;
-
-        
+        const { userId } = req.user;
 
         if (!userId) {
             return res.status(400).json(
@@ -68,8 +68,7 @@ export const getAllCartsCtrl = async (req, res) => {
             );
         }
 
-
-        const response = await getCartsSrvc(  userId);
+        const response = await getCartsSrvc(userId);
         return res.status(200).json(response);
 
     } catch (error) {
@@ -128,19 +127,26 @@ export const addWishlistCtrl = async (req, res) => {
 
     try {
 
+        
+        
+        
+        
+        const { userId, } = req.user;
+        
         const { id } = req.params;
+        console.log(id,"rrrrr", userId)
 
-        if (!id) {
+        if (!id || !userId) {
             return res.status(400).json(
-                api_response("FAIL", "ID is required", null)
+                api_response("FAIL", "ID is required or user unauthorized", null)
             );
         }
-        const response = await deleteCartSrvc(id);
+        const response = await addWishlistSrvc(id, userId);
         return res.status(response.status === "SUCCESS" ? 200 : 400).json(response);
 
     } catch (error) {
         return res.status(500).json(
-            api_response("FAIL", "Delete failed", null, error.message)
+            api_response("FAIL", "Add wishlist failed", null, error.message)
         );
     }
 
@@ -148,3 +154,26 @@ export const addWishlistCtrl = async (req, res) => {
 }
 
 
+export const deleteWishlistCtrl = async (req, res) => {
+
+    try {
+        const { userId, } = req.user;
+
+        const { id } = req.params;
+
+        if (!id || !userId) {
+            return res.status(400).json(
+                api_response("FAIL", "ID is required or user unauthorized", null)
+            );
+        }
+        const response = await deleteWishlistSrvc(id, userId);
+        return res.status(response.status === "SUCCESS" ? 200 : 400).json(response);
+
+    } catch (error) {
+        return res.status(500).json(
+            api_response("FAIL", "Add wishlist failed", null, error.message)
+        );
+    }
+
+
+}

@@ -1,4 +1,5 @@
 import Product from "../../models/adminModel/productModel.js";
+import wishListModel from "../../models/customerModels/wishListModel.js";
 import { api_response } from "../../utils/response.js";
 
 
@@ -26,46 +27,69 @@ export const addProductSrvc = async (data) => {
 
 
 
-export const getProducts = async (filter, sort) => {
+export const getProducts = async (filter, sort, userId) => {
     try {
         const [
             totalProducts,
             activeProducts,
             inactiveProducts,
             draftProducts,
-            outofstockProducts,
+            wishlistCount
         ] = await Promise.all([
             Product.countDocuments(),
             Product.countDocuments({ status: "active" }),
             Product.countDocuments({ status: "inactive" }),
             Product.countDocuments({ status: "draft" }),
-            Product.countDocuments({ status: "outofstock" }),
+            wishListModel.countDocuments({ user_id: userId }),
 
         ]);
+
         const counts = {
             totalProducts,
             activeProducts,
             inactiveProducts,
             draftProducts,
-            outofstockProducts,
-        }
+            wishlistCount
 
+        };
 
         const products = await Product
             .find(filter)
             .sort(sort)
-            .populate("category", "name");
+            .populate("category", "name")
+            .lean();
+
+        // default response (guest user)
+        let finalProducts = products.map(p => ({
+            ...p,
+            isWishlisted: false,
+        }));
+        if (userId) {
+            const wishListsData = await wishListModel
+                .find({ user_id: userId })
+                .select("product_id")
+                .lean();
+
+            const wishlistIds = new Set(
+                wishListsData.map(w => w.product_id.toString())
+            );
+            finalProducts = products.map(p => ({
+                ...p,
+                isWishlisted: wishlistIds.has(p._id.toString()),
+            }));
+        }
 
         return api_response(
             "SUCCESS",
             "All products fetched successfully",
             {
                 counts,
-                products
+                products: finalProducts,
             }
         );
 
     } catch (error) {
+        console.error("error :", error);
         return api_response(
             "FAIL",
             error.message || "Product fetch failed",

@@ -4,14 +4,16 @@ import {
     getAllCartsCtrl,
     deleteCartCtrl,
     updateCartCtrl, 
-    addWishlistCtrl, 
+    addWishlistCtrl,
+    deleteWishlistCtrl 
 } from "../../controllers/customerCtrl/cartCtrl/cartCtrl.js";
 import { authMiddleware } from "../../middlewares/authMiddleware/authMiddleware.js"
 
 export const CartRoutes = express.Router();
  
 
-CartRoutes.post("/add-to-wishlist", authMiddleware, addWishlistCtrl);
+CartRoutes.post("/add-to-wishlist/:id", authMiddleware, addWishlistCtrl);
+CartRoutes.delete("/delete-from-wishlist/:id", authMiddleware, deleteWishlistCtrl);
 
 // All cart routes with auth
 CartRoutes.post("/add-cart", authMiddleware, addCartCtrl);

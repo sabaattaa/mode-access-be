@@ -7,11 +7,6 @@ const wishlistSchema = new mongoose.Schema({
     default: null
   },
 
-  guest_id: {
-    type: String,
-    default: null
-  },
-
   product_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Product",

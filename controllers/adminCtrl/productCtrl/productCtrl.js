@@ -1,7 +1,8 @@
 
 // Add Product
 
-import { addProductSrvc,  deleteProductSrvc, getProducts, updateProductSrvc } from "../../../services/adminSrvc/productSrvc.js"
+import { addProductSrvc, deleteProductSrvc, getProducts, updateProductSrvc } from "../../../services/adminSrvc/productSrvc.js"
+import { api_response } from "../../../utils/response.js";
 
 export const addProductCtrl = async (req, res) => {
     const { name, sku, description, category, price, original_price, stock_quantity, status, featured } = req.body;
@@ -24,6 +25,9 @@ export const addProductCtrl = async (req, res) => {
 
 export const getAllProductsCtrl = async (req, res) => {
     try {
+ 
+        const userId  = req.user?.userId||null;
+
         const { id, search, category, status, customOrder } = req.query;
 
         let filter = {};
@@ -79,10 +83,11 @@ export const getAllProductsCtrl = async (req, res) => {
                 sort = { createdAt: -1 };
         }
 
-        const result = await getProducts(filter, sort);
+        const result = await getProducts(filter, sort,userId);
         res.status(200).json(result);
 
     } catch (error) {
+        console.log("error is:", error)
         res.status(500).json(
             api_response("FAIL", "Something went wrong", null, error)
         );
@@ -95,54 +100,54 @@ export const getAllProductsCtrl = async (req, res) => {
 
 
 export const updateProductCtrl = async (req, res) => {
-  try {
-    const { id } = req.query;
+    try {
+        const { id } = req.query;
 
-    const {name,sku,description,category,price,original_price,stock_quantity,status,featured,} = req.body;
+        const { name, sku, description, category, price, original_price, stock_quantity, status, featured, } = req.body;
 
-    const images = req.files?.map(file => file.path);
+        const images = req.files?.map(file => file.path);
 
-    const data = {name,sku,description,category,price,original_price,stock_quantity,status,featured,};
- 
-    if (images && images.length > 0) {
-      data.product_imgs = images;
+        const data = { name, sku, description, category, price, original_price, stock_quantity, status, featured, };
+
+        if (images && images.length > 0) {
+            data.product_imgs = images;
+        }
+
+        const response = await updateProductSrvc(id, data);
+
+        res.status(200).json(response);
+
+    } catch (error) {
+        res.status(500).json(
+            api_response("FAIL", "Update failed", null, error)
+        );
     }
-
-    const response = await updateProductSrvc(id, data);
-
-    res.status(200).json(response);
-
-  } catch (error) {
-    res.status(500).json(
-      api_response("FAIL", "Update failed", null, error)
-    );
-  }
 };
 
 
 //   Delete Product  
 export const deleteProductCtrl = async (req, res) => {
-  try { 
-    const { id } = req.params;
-    const response = await deleteProductSrvc(id);
-    res.status(200).json(response);
+    try {
+        const { id } = req.params;
+        const response = await deleteProductSrvc(id);
+        res.status(200).json(response);
 
-  } catch (error) {
-    res.status(500).json(
-      api_response("FAIL", "Delete failed", null, error)
-    );
-  }
+    } catch (error) {
+        res.status(500).json(
+            api_response("FAIL", "Delete failed", null, error)
+        );
+    }
 };
 
 export const importProductCtrl = (req, res) => {
- 
+
     res.status(200).json({
         "message": "deleteProductCtrl Product"
     })
 }
 
 export const exportProductCtrl = (req, res) => {
- 
+
     res.status(200).json({
         "message": "deleteProductCtrl Product"
     })

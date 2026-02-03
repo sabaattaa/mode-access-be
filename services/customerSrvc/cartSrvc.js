@@ -3,6 +3,7 @@ import Cart from "../../models/customerModels/cartModel.js";
 import Product from "../../models/adminModel/productModel.js";
 import { api_response } from "../../utils/response.js";
 import mongoose from "mongoose";
+import wishListModel from "../../models/customerModels/wishListModel.js";
 
 //  Add to Cart Service
 export const addCartSrvc = async (data) => {
@@ -186,6 +187,68 @@ export const deleteCartSrvc = async (cartId, userId) => {
         return api_response(
             "FAIL",
             "Delete cart failed",
+            null,
+            error.message
+        );
+    }
+};
+
+
+export const addWishlistSrvc = async (productId, userId) => {
+
+    try {
+
+        const wishlist = await wishListModel.create({ user_id: userId, product_id: productId })
+
+
+        return api_response(
+            "SUCCESS",
+            "Product added in wish list  successfully",
+            wishlist
+        );
+
+    } catch (error) {
+        return api_response(
+            "FAIL",
+            "Product added in wish list failed",
+            null,
+            error.message
+        );
+    }
+
+
+
+
+
+}
+
+export const deleteWishlistSrvc = async (productId, userId) => {
+    try {
+
+        
+
+        const wishlist = await wishListModel.findOne({product_id:productId});
+
+        if (!wishlist) {
+            return api_response(
+                "FAIL",
+                "wishlist item not found or unauthorized",
+                null
+            );
+        }
+ 
+        await wishlist.deleteOne();
+
+        return api_response(
+            "SUCCESS",
+            "Wishlist item removed successfully",
+            null
+        );
+
+    } catch (error) {
+        return api_response(
+            "FAIL",
+            "Delete wishlist failed",
             null,
             error.message
         );

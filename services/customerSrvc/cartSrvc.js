@@ -221,13 +221,42 @@ export const addWishlistSrvc = async (productId, userId) => {
 
 
 }
+export const getWishlistSrvc = async (userId) => {
+    try {
+
+        const wishlist = await wishListModel
+            .find({ user_id: userId })
+            .populate("product_id", "name price product_imgs category")
+            .lean();
+
+        const finalWishlist = wishlist.map(item => ({
+            ...item.product_id,
+            isWishlisted: true
+        }));
+
+        return api_response(
+            "SUCCESS",
+            "Wishlist fetched successfully",
+            finalWishlist
+        );
+
+    } catch (error) {
+        return api_response(
+            "FAIL",
+            "Wishlist fetch failed",
+            null,
+            error.message
+        );
+    }
+};
+
 
 export const deleteWishlistSrvc = async (productId, userId) => {
     try {
 
-        
 
-        const wishlist = await wishListModel.findOne({product_id:productId});
+
+        const wishlist = await wishListModel.findOne({ product_id: productId });
 
         if (!wishlist) {
             return api_response(
@@ -236,7 +265,7 @@ export const deleteWishlistSrvc = async (productId, userId) => {
                 null
             );
         }
- 
+
         await wishlist.deleteOne();
 
         return api_response(

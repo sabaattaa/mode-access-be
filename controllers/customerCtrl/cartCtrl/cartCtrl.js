@@ -5,6 +5,7 @@ import {
     deleteCartSrvc,
     updateCartSrvc,
     addWishlistSrvc,
+    getWishlistSrvc,
     deleteWishlistSrvc
 } from "../../../services/customerSrvc/cartSrvc.js";
 import { api_response } from "../../../utils/response.js";
@@ -125,10 +126,7 @@ export const deleteCartCtrl = async (req, res) => {
 
 export const addWishlistCtrl = async (req, res) => {
 
-    try {
-
-        
-        
+    try {     
         
         
         const { userId, } = req.user;
@@ -142,6 +140,29 @@ export const addWishlistCtrl = async (req, res) => {
             );
         }
         const response = await addWishlistSrvc(id, userId);
+        return res.status(response.status === "SUCCESS" ? 200 : 400).json(response);
+
+    } catch (error) {
+        return res.status(500).json(
+            api_response("FAIL", "Add wishlist failed", null, error.message)
+        );
+    }
+
+
+}
+export const getWishlistCtrl = async (req, res) => {
+
+    try {     
+        
+        
+        const { userId, } = req.user;
+          
+        if (  !userId) {
+            return res.status(400).json(
+                api_response("FAIL", "Unaunthenticated user", null)
+            );
+        }
+        const response = await getWishlistSrvc(userId);
         return res.status(response.status === "SUCCESS" ? 200 : 400).json(response);
 
     } catch (error) {

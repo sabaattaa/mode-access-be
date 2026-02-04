@@ -1,7 +1,7 @@
 
 // Add Product
 
-import { addProductSrvc, deleteProductSrvc, getProducts, updateProductSrvc } from "../../../services/adminSrvc/productSrvc.js"
+import { addProductSrvc, deleteProductSrvc, getProductsSrvs, getSingleProductsSrvs, updateProductSrvc } from "../../../services/adminSrvc/productSrvc.js"
 import { api_response } from "../../../utils/response.js";
 
 export const addProductCtrl = async (req, res) => {
@@ -25,8 +25,8 @@ export const addProductCtrl = async (req, res) => {
 
 export const getAllProductsCtrl = async (req, res) => {
     try {
- 
-        const userId  = req.user?.userId||null;
+
+        const userId = req.user?.userId || null;
 
         const { id, search, category, status, customOrder } = req.query;
 
@@ -83,7 +83,30 @@ export const getAllProductsCtrl = async (req, res) => {
                 sort = { createdAt: -1 };
         }
 
-        const result = await getProducts(filter, sort,userId);
+        const result = await getProductsSrvs(filter, sort, userId);
+        res.status(200).json(result);
+
+    } catch (error) {
+        console.log("error is:", error)
+        res.status(500).json(
+            api_response("FAIL", "Something went wrong", null, error)
+        );
+    }
+};
+//  Get All Products
+
+export const getSingleProductsCtrl = async (req, res) => {
+    try {
+
+        const userId = req.user?.userId || null;
+
+        const { id } = req.query;
+
+        let filter = {};
+
+        if (id) filter._id = id;
+
+        const result = await getSingleProductsSrvs(filter, userId);
         res.status(200).json(result);
 
     } catch (error) {

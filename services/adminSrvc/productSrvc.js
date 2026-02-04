@@ -27,7 +27,7 @@ export const addProductSrvc = async (data) => {
 
 
 
-export const getProducts = async (filter, sort, userId) => {
+export const getProductsSrvs = async (filter, sort, userId) => {
     try {
         const [
             totalProducts,
@@ -85,6 +85,59 @@ export const getProducts = async (filter, sort, userId) => {
             {
                 counts,
                 products: finalProducts,
+            }
+        );
+
+    } catch (error) {
+        console.error("error :", error);
+        return api_response(
+            "FAIL",
+            error.message || "Product fetch failed",
+            null,
+            error
+        );
+    }
+};
+export const getSingleProductsSrvs = async (filter, userId) => {
+    try {
+
+        const product = await Product
+            .findOne(filter)
+            .populate("category", "name")
+            .lean();
+
+        if (!product) {
+            return api_response("FAIL", "Product not found", null);
+        }
+
+        const similarProducts = await Product
+            .find({
+                category: product.category._id,
+                _id: { $ne: product._id }
+            })
+            .limit(8)
+            .lean();
+
+        let finalProduct = {
+            ...product,
+            isWishlisted: false
+        };
+
+        if (userId) {
+            const wishlisted = await wishListModel.exists({
+                user_id: userId,
+                product_id: product._id
+            });
+
+            finalProduct.isWishlisted = !!wishlisted;
+        }
+
+        return api_response(
+            "SUCCESS",
+            "Product fetched successfully",
+            {
+                product: finalProduct,
+                similarProducts
             }
         );
 

@@ -28,13 +28,16 @@ export const getAllProductsCtrl = async (req, res) => {
 
         const userId = req.user?.userId || null;
 
-        const { id, search, category, status, customOrder } = req.query;
+        const { id, search, category, status, customOrder, priceRange } = req.query;
 
         let filter = {};
 
         if (id) filter._id = id;
         if (category) filter.category = category;
         if (status) filter.status = status;
+        if (priceRange) {
+            filter.price = { $gte: Number(priceRange) }
+        }
 
 
         if (search) {

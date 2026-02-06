@@ -13,10 +13,7 @@ export const addOrderSrvc = async (user_id, data) => {
 
         const { phone, coupon_code, payment_method, shipping_address, order_items, } = data;
 
-
-
-
-        let total_price = 0;
+        let total_price = 200;
 
 
         for (const item of order_items) {

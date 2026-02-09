@@ -15,12 +15,17 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending","confirmed","processing", "paid", "shipped", "delivered", "cancelled","refunded","onTheWay"],
+    enum: ["pending", "confirmed", "processing", "paid", "shipped", "delivered", "cancelled", "refunded", "onTheWay"],
     default: "pending"
   },
   payment_method: {
     type: String,
-    enum: ["COD", "ONLINE", "JazzCash"],
+    enum: ['COD', 'BANK', "JAZZCASH"],
+    required: true
+  },
+  shipping_method: {
+    type: String,
+    enum: ['standard', 'express',],
     required: true
   },
   payment_status: {

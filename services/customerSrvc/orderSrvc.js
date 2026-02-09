@@ -11,7 +11,7 @@ import Cart from "../../models/customerModels/cartModel.js";
 export const addOrderSrvc = async (user_id, data) => {
     try {
 
-        const { phone, coupon_code, payment_method, shipping_address, order_items, } = data;
+        const { phone, coupon_code, shipping_method, payment_method, shipping_address, order_items, } = data;
 
         let total_price = 200;
 
@@ -33,6 +33,7 @@ export const addOrderSrvc = async (user_id, data) => {
             total_price,
             coupon_code,
             payment_method,
+            shipping_method,
             shipping_address,
             payment_status
         });

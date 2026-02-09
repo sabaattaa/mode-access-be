@@ -6,8 +6,8 @@ import { api_response } from "../../../utils/response.js";
 
 export const addProductCtrl = async (req, res) => {
     const { name, sku, description, category, price, original_price, stock_quantity, status, featured } = req.body;
-
-    const images = req.files?.map(file => file.path);
+  const images = req.files?.map(file => file.path.replace(/\\/g, "/"));
+    // const images = req.files?.map(file => file.path);
 
     if (!images || images.length === 0) {
         throw new Error("Product images are required");

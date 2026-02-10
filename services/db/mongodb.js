@@ -11,18 +11,35 @@
 // };
 
 
+
+
 import mongoose from "mongoose";
 
-let isConnected = false;
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+  throw new Error("MONGODB_URI not found in env");
+}
+
+/**
+ * Global cache for Vercel (VERY IMPORTANT)
+ */
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
 
 export const connectDB = async () => {
-  if (isConnected) return;
+  if (cached.conn) return cached.conn;
 
-  try {
-    const db = await mongoose.connect(process.env.MONGODB_URI);
-    isConnected = db.connections[0].readyState;
-    console.log("MongoDB connected");
-  } catch (error) {
-    console.error("DB connection error:", error.message);
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGODB_URI, {
+      dbName: "saba2917atta",
+      bufferCommands: false,
+    }).then((mongoose) => mongoose);
   }
+
+  cached.conn = await cached.promise;
+  return cached.conn;
 };

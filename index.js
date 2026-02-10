@@ -7,7 +7,7 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 
-connectDB();
+// connectDB();
 const app = express();
 app.use(cors({ origin: "*" })); 
 const __filename = fileURLToPath(import.meta.url);
@@ -17,7 +17,12 @@ app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
 
+app.use(async (req, res, next) => {
+    await connectDB();
+    next();
+});
 app.use("/api", AllRoutes);
+
 export default app
 
 // const port = process.env.PORT || 5000;

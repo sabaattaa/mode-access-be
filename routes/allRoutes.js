@@ -8,7 +8,7 @@ import { CartRoutes } from "./customerRoutes/cartRoutes.js";
 import { orderRoutes } from "./customerRoutes/oredrRoutes.js"; 
 import { socialLinksRoutes } from "./customerRoutes/socialLinksRoutes.js";
 import { userAddressRoutes } from "./customerRoutes/userAdressRoutes.js";
-// import { feedBackRoutes } from "./customerRoutes/feedbackRoutes.js"; 
+import { feedBackRoutes } from "./customerRoutes/feedbackRoutes.js"; 
 
 export const AllRoutes = express.Router();
 
@@ -27,4 +27,4 @@ AllRoutes.use("/oredr", orderRoutes);
 AllRoutes.use("/social-links", socialLinksRoutes);
 AllRoutes.use("/user-address", userAddressRoutes);
 
-// AllRoutes.use("/feedback", feedBackRoutes);
+AllRoutes.use("/feedback", feedBackRoutes);

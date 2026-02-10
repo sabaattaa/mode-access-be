@@ -47,8 +47,7 @@ export const addAddressSrvc = async (userId, data) => {
 
 // Get All Carts Service
 export const getAddressSrvc = async (user_id) => {
-    try {
-        console.log("Suser_id", user_id)
+    try { 
         const address = await Address.find({ user_id }).sort({ createdAt: -1 });
         return api_response("SUCCESS", "Address fetched successfully", {
             address: address,

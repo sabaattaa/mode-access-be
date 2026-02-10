@@ -14,6 +14,7 @@ export const createUserSrcv = async (data) => {
   const { _id, name, email, agree_terms_and_conditions, } = await User.create({
     ...data,
     password: hashedPassword,
+    role:"USER"
   });
 
   const token = genrateUserTOken({_id, name, email, agree_terms_and_conditions,})

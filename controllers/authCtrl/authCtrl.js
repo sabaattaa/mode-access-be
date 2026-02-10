@@ -53,6 +53,7 @@ export const registerUser = async (req, res) => {
       email,
       password,
       agree_terms_and_conditions,
+      
     });
 
     return res.status(201).json(userRes);

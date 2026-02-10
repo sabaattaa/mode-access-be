@@ -3,9 +3,7 @@ import {
     addfeedBackCtrl,
     getAllfeedBacksCtrl,
     deletefeedBackCtrl,
-    updatefeedBackCtrl, 
-    addWishlistCtrl,
-    getWishlistCtrl, 
+    updatefeedBackCtrl,  
 } from   "../../controllers/customerCtrl/feedbackCtrl.js";
 import { authMiddleware } from "../../middlewares/authMiddleware/authMiddleware.js"
  
@@ -13,13 +11,9 @@ import { authMiddleware } from "../../middlewares/authMiddleware/authMiddleware.
 export const feedBackRoutes = express.Router();
  
 
-feedBackRoutes.post("/add-to-wishlist/:id", authMiddleware, addWishlistCtrl);
-feedBackRoutes.get("/get-wishlist", authMiddleware, getWishlistCtrl);
-feedBackRoutes.delete("/delete-from-wishlist/:id", authMiddleware, deleteWishlistCtrl);
-
-// All feedBack routes with auth
-feedBackRoutes.post("/add-feedBack", authMiddleware, addfeedBackCtrl);
-feedBackRoutes.get("/get-all-feedBack", authMiddleware, getAllfeedBacksCtrl);
-feedBackRoutes.put("/update-feedBack/:id", authMiddleware, updatefeedBackCtrl);
-feedBackRoutes.delete("/delete-feedBack/:id", authMiddleware, deletefeedBackCtrl);
+ 
+feedBackRoutes.post("/add-feedback", authMiddleware, addfeedBackCtrl);
+feedBackRoutes.get("/get-all-feedback", authMiddleware, getAllfeedBacksCtrl);
+feedBackRoutes.put("/update-feedback/:id", authMiddleware, updatefeedBackCtrl);
+feedBackRoutes.delete("/delete-feedback/:id", authMiddleware, deletefeedBackCtrl);
 

@@ -5,6 +5,7 @@ import { api_response } from "../../utils/response.js";
 import mongoose from "mongoose";
 import { findProduct } from "../adminSrvc/productSrvc.js";
 import Cart from "../../models/customerModels/cartModel.js";
+import Feedback from "../../models/customerModels/feedBackModel.js";
 
 
 //  Add to Order Service
@@ -64,24 +65,40 @@ export const addOrderSrvc = async (user_id, data) => {
 };
 
 
-// Get All Orders Service
 export const getOrdersSrvc = async (filter = {}, sort = { createdAt: -1 }) => {
     try {
-
-        console.log("wwwweee", filter)
-
+        // 1. Fetch Orders
         const Orders = await Order.find(filter)
             .sort(sort)
-            .populate("user_id");
-        console.log("wwwweee Orders", filter)
+            .populate("user_id"); 
 
         if (!Orders?.length) {
             return api_response("FAIL", "No orders found", null);
         }
 
         const orderIds = Orders.map(o => o._id);
+        const userId = filter.user_id; // Extract user ID from filter for security
 
-        // 🔥 ONE query instead of loop
+        // 2. Fetch Feedback Status (Optimized)
+        // We only need to know WHICH orders have feedback, not the details.
+        // We check for this specific user AND these specific order IDs.
+        const feedbackedOrderIds = await Feedback.distinct("order_id", {
+            user_id: userId,
+            order_id: { $in: orderIds }
+        });
+
+
+        console.log(
+            "feedbackedOrderIds",feedbackedOrderIds
+        )
+
+        // Convert to a Set for O(1) (Instant) lookup time
+        const feedbackSet = new Set(feedbackedOrderIds.map(String));
+  console.log(
+            "feedbackedOrderIds22",feedbackSet
+        )
+
+        // 3. Fetch Order Items
         const items = await OrderItem.find({ order_id: { $in: orderIds } })
             .populate({
                 path: "product_id",
@@ -89,7 +106,7 @@ export const getOrdersSrvc = async (filter = {}, sort = { createdAt: -1 }) => {
                 populate: { path: "category", select: "name" }
             });
 
-        // group items by order
+        // Group items by order
         const itemsByOrder = {};
         items.forEach(item => {
             const key = item.order_id.toString();
@@ -97,14 +114,18 @@ export const getOrdersSrvc = async (filter = {}, sort = { createdAt: -1 }) => {
             itemsByOrder[key].push(item);
         });
 
+        // 4. Build Final Response
         const ordersWithItems = Orders.map(order => {
             const orderItems = itemsByOrder[order._id.toString()] || [];
+            
+            // 🔥 LOGIC: Check if this Order ID exists in our Feedback Set
+            const isFeedbackGiven = feedbackSet.has(order._id.toString());
 
             return {
                 id: order._id,
                 order_no: order.order_no,
                 user_id: order.user_id,
-                guest_id: order.guest_id, // ✅ direct string
+                guest_id: order.guest_id,
                 total_price: order.total_price,
                 payment_method: order.payment_method,
                 shipping_address: order.shipping_address,
@@ -114,6 +135,8 @@ export const getOrdersSrvc = async (filter = {}, sort = { createdAt: -1 }) => {
                 createdAt: order.createdAt,
                 updatedAt: order.updatedAt,
                 payment_status: order.payment_status,
+                // ⭐ Add the flag here
+                is_feedback_submitted: isFeedbackGiven,
                 order_items: orderItems.map(item => ({
                     product_id: item.product_id,
                     price: item.price,
@@ -128,7 +151,6 @@ export const getOrdersSrvc = async (filter = {}, sort = { createdAt: -1 }) => {
             processing_orders: Orders.filter(o => o.status === "processing").length,
             shipped_orders: Orders.filter(o => o.status === "shipped").length,
             delivered_orders: Orders.filter(o => o.status === "delivered").length,
-
             subtotal: ordersWithItems.reduce((sum, o) => sum + Number(o.total_price), 0)
         };
 
@@ -139,10 +161,10 @@ export const getOrdersSrvc = async (filter = {}, sort = { createdAt: -1 }) => {
         });
 
     } catch (error) {
+        console.error("Order Service Error:", error); // Good practice: log the full error
         return api_response("FAIL", error.message || "Order fetch failed", null, error);
     }
 };
-
 
 
 // update Order Service (Soft delete all)

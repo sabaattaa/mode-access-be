@@ -4,59 +4,59 @@ import {
     getfeedBacksSrvc,
     deletefeedBackSrvc,
     updatefeedBackSrvc,
-    addWishlistSrvc,
-    getWishlistSrvc,
-    deleteWishlistSrvc
 } from "../../services/customerSrvc/feedBackSrvc.js";
-import { api_response } from "../../../utils/response.js";
-import { findProduct } from "../../../services/adminSrvc/productSrvc.js";
-import Guest from "../../../models/customerModels/guestModel.js";
-import User from "../../../models/authModel/userModel.js";
-import mongoose from "mongoose";
+ 
+import { api_response } from "../../utils/response.js";
 
 
-// Add to feedBack
 export const addfeedBackCtrl = async (req, res) => {
     try {
-        const { product_id, } = req.body;
-        const { userId, } = req.user;
-        if (!product_id || !mongoose.Types.ObjectId.isValid(product_id)) {
-            return api_response("FAIL", "Invalid product id", null);
+        const { userReviews, orderId } = req.body;
+        const { userId } = req.user;
+
+        console.log(`Incoming feedback for Order: ${orderId} from User: ${userId}`);
+
+        // 1. Validate Request Body
+        if (!orderId) {
+            return res.status(400).json(api_response("FAIL", "Order ID is required", null));
         }
 
-        let user = null;
-        if (userId) {
-            user = await User.findById({ _id: userId });
-
+        if (!userReviews || !Array.isArray(userReviews) || userReviews.length === 0) {
+            return res.status(400).json(api_response("FAIL", "userReviews array is required", null));
         }
 
+        // 2. Sanitize/Pre-check data before sending to service (Good for Security)
+        const cleanedReviews = userReviews.map(review => {
+            // Ensure rating is a number, handle the 'undefined' case gracefully
+            return {
+                ...review,
+                rating: Number(review.rating) 
+            };
+        });
 
-        if (!user) { return api_response("FAIL", "user not found", null); }
-
-        const product = await findProduct(product_id);
-        if (!product) {
-            return res.status(400).json(
-                api_response("FAIL", "Product not found", null)
-            );
+        // Check specifically for invalid ratings to prevent DB error
+        const invalidReview = cleanedReviews.find(r => isNaN(r.rating) || r.rating < 1 || r.rating > 5);
+        if (invalidReview) {
+            return res.status(400).json(api_response("FAIL", "One or more items have invalid ratings (1-5 required)", invalidReview));
         }
 
-        const { price, } = product;
         const response = await addfeedBackSrvc({
             userId,
-            product_id,
-            price,
+            orderId,
+            userReviews: cleanedReviews,
         });
+
         return res
             .status(response.status === "SUCCESS" ? 200 : 400)
             .json(response);
 
     } catch (error) {
+        console.log("Controller Error:", error);
         return res.status(500).json(
-            api_response("FAIL", "Something went wrong", null, error.message)
+            api_response("FAIL", "Internal Server Error", null, error.message)
         );
     }
 };
-
 
 // Get All feedBacks
 export const getAllfeedBacksCtrl = async (req, res) => {
@@ -124,77 +124,3 @@ export const deletefeedBackCtrl = async (req, res) => {
 
 
 
-export const addWishlistCtrl = async (req, res) => {
-
-    try {     
-        
-        
-        const { userId, } = req.user;
-        
-        const { id } = req.params;
-        console.log(id,"rrrrr", userId)
-
-        if (!id || !userId) {
-            return res.status(400).json(
-                api_response("FAIL", "ID is required or user unauthorized", null)
-            );
-        }
-        const response = await addWishlistSrvc(id, userId);
-        return res.status(response.status === "SUCCESS" ? 200 : 400).json(response);
-
-    } catch (error) {
-        return res.status(500).json(
-            api_response("FAIL", "Add wishlist failed", null, error.message)
-        );
-    }
-
-
-}
-export const getWishlistCtrl = async (req, res) => {
-
-    try {     
-        
-        
-        const { userId, } = req.user;
-          
-        if (  !userId) {
-            return res.status(400).json(
-                api_response("FAIL", "Unaunthenticated user", null)
-            );
-        }
-        const response = await getWishlistSrvc(userId);
-        return res.status(response.status === "SUCCESS" ? 200 : 400).json(response);
-
-    } catch (error) {
-        return res.status(500).json(
-            api_response("FAIL", "Add wishlist failed", null, error.message)
-        );
-    }
-
-
-}
-
-
-export const deleteWishlistCtrl = async (req, res) => {
-
-    try {
-        const { userId, } = req.user;
-
-        const { id } = req.params;
-
-        if (!id || !userId) {
-            return res.status(400).json(
-                api_response("FAIL", "ID is required or user unauthorized", null)
-            );
-        }
-        const response = await deleteWishlistSrvc(id, userId);
-        return res.status(response.status === "SUCCESS" ? 200 : 400).json(response);
-
-    } catch (error) {
-        return res.status(500).json(
-            api_response("FAIL", "Add wishlist failed", null, error.message)
-        );
-    }
-
-
-}

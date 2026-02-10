@@ -131,8 +131,7 @@ export const addWishlistCtrl = async (req, res) => {
         
         const { userId, } = req.user;
         
-        const { id } = req.params;
-        console.log(id,"rrrrr", userId)
+        const { id } = req.params; 
 
         if (!id || !userId) {
             return res.status(400).json(

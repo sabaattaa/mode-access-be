@@ -1,79 +1,70 @@
-// services/customerSrvc/feedBackSrvc.js
-import feedBack from "../../models/customerModels/feedBackModel.js";
-import Product from "../../models/adminModel/productModel.js";
-import { api_response } from "../utils/response.js";
 import mongoose from "mongoose";
-import wishListModel from "../models/customerModels/wishListModel.js";
+import Feedback from "../../models/customerModels/feedBackModel.js"; 
+import { api_response } from "../../utils/response.js";
 
-//  Add to feedBack Service
 export const addfeedBackSrvc = async (data) => {
     try {
-        const {
-            userId,
-            product_id,
-            price,
-            quantity = 1,
-        } = data;
+        const { userId, orderId, userReviews } = data;
 
-
-
-        //   Build query (user OR guest)
-        const query = { product_id };
-        if (userId) query.user_id = userId;
-
-        else {
-            return api_response("FAIL", "User required", null);
+        // 1. Basic Validation
+        if (!userId || !orderId || !userReviews || userReviews.length === 0) {
+            return api_response("FAIL", "Missing required fields (userId, orderId, or reviews)", null);
         }
 
-        //  Check existing feedBack item
-        let feedBackItem = await feedBack.findOne(query);
+        const savedReviews = [];
+        const errors = [];
 
-        if (feedBackItem) {
-            // Ensure quantity is valid number
-            const qtyToAdd = Number(quantity) || 1;
-            const price = Number(feedBackItem.price);
-
-            if (isNaN(price)) {
-                return api_response("FAIL", "Invalid product price in feedBack", null);
+        // 2. Process each review in the array (The 'Cart' to 'Feedback' transformation)
+        for (const item of userReviews) {
+            // Frontend sent 'product_id', but we must verify it
+            if (!item.product_id) {
+                errors.push({ item: "Missing Product ID" });
+                continue;
             }
 
-            // Update quantity and total price
-            feedBackItem.quantity += qtyToAdd;
-            feedBackItem.total_price = feedBackItem.quantity * price;
+            // Check for undefined rating (Fixing your frontend console error)
+            if (item.rating === undefined || item.rating === null || item.rating < 1 || item.rating > 5) {
+                errors.push({ product: item.product_id, reason: "Invalid Rating (Must be 1-5)" });
+                continue; // Skip this item or throw error
+            }
 
-            await feedBackItem.save();
+            // Logic: Check if review already exists (Upsert)
+            const filter = {
+                user_id: userId,
+                order_id: orderId,
+                product_id: item.product_id
+            };
 
-            // Populate product details for response
-            const populatedfeedBack = await feedBack.findById(feedBackItem._id)
-                .populate("product_id", "name price product_imgs");
+            const update = {
+                rating: item.rating,
+                message: item.message || "" // Handle empty messages safely
+            };
 
-            return api_response("SUCCESS", "feedBack updated successfully", populatedfeedBack);
+            const options = { new: true, upsert: true, setDefaultsOnInsert: true };
+
+            // Save to DB
+            const review = await Feedback.findOneAndUpdate(filter, update, options);
+            savedReviews.push(review);
         }
 
+        if (savedReviews.length === 0) {
+            return api_response("FAIL", "No valid reviews were saved. Check input.", { errors });
+        }
 
-        //   Create new feedBack item
-        const newfeedBack = await feedBack.create({
-            product_id,
-            quantity: Number(quantity),
-            price: Number(price),
-            total_price: Number(price) * Number(quantity),
-            is_active: true,
-            ...(userId && { user_id: userId }),
-        });
-        const populatedfeedBack = await feedBack.findById(newfeedBack._id)
-            .populate("product_id", "name price product_imgs");
-
-        return api_response("SUCCESS", "Product added to feedBack", populatedfeedBack);
+        return api_response("SUCCESS", "Feedback submitted successfully", savedReviews);
 
     } catch (error) {
-        console.error("Add feedBack Error:", error);
-        return api_response(
-            "FAIL",
-            error.message || "Add to feedBack failed",
-            null
-        );
+        console.error("Add feedBack Service Error:", error);
+        
+        // Handle Duplicate Key Error (if unique index is hit)
+        if (error.code === 11000) {
+            return api_response("FAIL", "You have already reviewed this product for this order.", null);
+        }
+
+        return api_response("FAIL", error.message || "Service failed", null);
     }
 };
+
 
 // Get All feedBacks Service
 export const getfeedBacksSrvc = async (user_id) => {
@@ -194,92 +185,4 @@ export const deletefeedBackSrvc = async (feedBackId, userId) => {
 };
 
 
-export const addWishlistSrvc = async (productId, userId) => {
 
-    try {
-
-        const wishlist = await wishListModel.create({ user_id: userId, product_id: productId })
-
-
-        return api_response(
-            "SUCCESS",
-            "Product added in wish list  successfully",
-            wishlist
-        );
-
-    } catch (error) {
-        return api_response(
-            "FAIL",
-            "Product added in wish list failed",
-            null,
-            error.message
-        );
-    }
-
-
-
-
-
-}
-export const getWishlistSrvc = async (userId) => {
-    try {
-
-        const wishlist = await wishListModel
-            .find({ user_id: userId })
-            .populate("product_id", "name price product_imgs category")
-            .lean();
-
-        const finalWishlist = wishlist.map(item => ({
-            ...item.product_id,
-            isWishlisted: true
-        }));
-
-        return api_response(
-            "SUCCESS",
-            "Wishlist fetched successfully",
-            finalWishlist
-        );
-
-    } catch (error) {
-        return api_response(
-            "FAIL",
-            "Wishlist fetch failed",
-            null,
-            error.message
-        );
-    }
-};
-
-
-export const deleteWishlistSrvc = async (productId, userId) => {
-    try {
-
-
-
-        const wishlist = await wishListModel.findOne({ product_id: productId });
-
-        if (!wishlist) {
-            return api_response(
-                "FAIL",
-                "wishlist item not found or unauthorized",
-                null
-            );
-        }
-
-        await wishlist.deleteOne();
-
-        return api_response(
-            "SUCCESS",
-            "Wishlist item removed successfully",
-            null
-        );
-
-    } catch (error) {
-        return api_response(
-            "FAIL",
-            "Delete wishlist failed",
-            null,
-            error.message
-        );
-    }
-};

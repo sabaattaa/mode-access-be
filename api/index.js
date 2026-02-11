@@ -1,4 +1,3 @@
-import { VercelRequest, VercelResponse } from "@vercel/node";
 import app from "../index.js";
 import { connectDB } from "../services/db/mongodb.js";
 

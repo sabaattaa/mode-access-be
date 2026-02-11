@@ -16,6 +16,7 @@ export const addProductSrvc = async (data) => {
         );
 
     } catch (error) {
+        console.log("error", error)
         return api_response(
             "FAIL",
             error.message || "Product add failed",

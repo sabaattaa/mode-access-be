@@ -8,18 +8,18 @@ export const addCategoryCtrl = async (req, res) => {
   try {
     const data = req.body;
      
-    if (!req.file) {
-      return res.status(400).json(
-        api_response(
-          "FAIL",
-          "Category Image is required.",
-          null,
-          "Category Image is required."
-        )
-      );
-    }
+    // if (!req.file) {
+    //   return res.status(400).json(
+    //     api_response(
+    //       "FAIL",
+    //       "Category Image is required.",
+    //       null,
+    //       "Category Image is required."
+    //     )
+    //   );
+    // }
  
-    data.category_img = req.file.path;
+    // data.category_img = req.file.path;
  
     if (typeof data.featured === 'string') {
       data.featured = data.featured === 'true';

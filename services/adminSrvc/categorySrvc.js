@@ -96,11 +96,13 @@ export const getCategorySrvc = async (query) => {
 export const updateCategorySrvc = async (req) => {
     try {
         const data = req.body;
-        if (req.file) {
-            data.category_img = req.file.path;
-        }
+        // if (req.file) {
+        //     data.category_img = req.file.path;
+        // }
         const { id } = req.query;
-        const { name, slug, featured, category_img, parent_category, status, description } = data;
+        // category_img,
+        const { name, slug, featured, 
+             parent_category, status, description } = data;
         if (!id) {
             return api_response("FAIL", "Category ID is required for update.", null);
         }
@@ -109,7 +111,7 @@ export const updateCategorySrvc = async (req) => {
         if (name) updateData.name = name;
         if (slug) updateData.slug = slug;
         if (featured !== undefined) updateData.featured = featured === "true";
-        if (category_img) updateData.category_img = category_img;
+        // if (category_img) updateData.category_img = category_img;
         if (parent_category !== undefined) updateData.parent_category = parent_category;
         if (status) updateData.status = status;
         if (description) updateData.description = description;

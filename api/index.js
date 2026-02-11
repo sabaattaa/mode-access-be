@@ -4,10 +4,9 @@ import { connectDB } from "../services/db/mongodb.js";
 
 export default async function handler(req, res) {
   try {
-    // DB connect
-    await connectDB();
-
-    // OPTIONS preflight for CORS
+    // 1. Pehle OPTIONS request (Preflight) handle karein
+    // Browser sirf yeh check karna chahta hai ke API allow hai ya nahi.
+    // Iske liye Database connect karne ki zaroorat nahi hai.
     if (req.method === "OPTIONS") {
       res.setHeader("Access-Control-Allow-Origin", "*");
       res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
@@ -15,7 +14,10 @@ export default async function handler(req, res) {
       return res.status(200).end();
     }
 
-    // Pass request to Express app
+    // 2. Sirf tab DB connect karein jab request OPTIONS nahi hai (e.g., POST, GET)
+    await connectDB();
+
+    // 3. Request ko Express app par pass karein
     await app(req, res); 
 
   } catch (err) {

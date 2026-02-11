@@ -26,7 +26,12 @@ app.use(express.urlencoded({ extended: true }));
 //     next();
 // });
 app.use("/api", AllRoutes);
-
+app.get("/", (req, res) => {
+  res.send("Server is running on Vercel!");
+});
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
+});
 export default app
 
 // const port = process.env.PORT || 5000;

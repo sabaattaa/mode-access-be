@@ -33,7 +33,7 @@ export const connectDB = async () => {
   if (cached.conn) return cached.conn;
   if (!cached.promise) {
     cached.promise = mongoose.connect(MONGODB_URI, {
-      dbName: "saba2917atta",
+      dbName: "zarposhStudio",
       bufferCommands: false,
     }).then((mongoose) => mongoose);
     console.log("MongoDB connected");

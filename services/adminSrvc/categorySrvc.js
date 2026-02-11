@@ -8,13 +8,14 @@ export const addCategorySrvc = async (data) => {
 
     try {
         const newCategory = await Category.create(data);
-
+ 
         return api_response(
             "SUCCESS",
             "New category added successfully.",
             newCategory
         );
     } catch (e) {
+        console.log("error", e)
         return api_response(
             "FAIL",
             "Category add failed.",

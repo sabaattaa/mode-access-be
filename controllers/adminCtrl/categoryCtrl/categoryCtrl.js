@@ -7,7 +7,7 @@ import { api_response } from "../../../utils/response.js";
 export const addCategoryCtrl = async (req, res) => {
   try {
     const data = req.body;
-     
+      
     // if (!req.file) {
     //   return res.status(400).json(
     //     api_response(
@@ -21,11 +21,11 @@ export const addCategoryCtrl = async (req, res) => {
  
     // data.category_img = req.file.path;
  
-    if (typeof data.featured === 'string') {
+    if (typeof data?.featured === 'string') {
       data.featured = data.featured === 'true';
     }
  
-    if (data.parentId === '' || data.parentId === 'null') {
+    if (data?.parentId === '' || data?.parentId === 'null') {
       data.parentId = null;
     }
 

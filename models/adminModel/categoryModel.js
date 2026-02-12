@@ -33,10 +33,10 @@ const categoryModel = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    // category_img: {
-    //     type: String,
-    //     required: [true, "Category image is required"]
-    // }
+    category_img: {
+        type: String,
+        required: [true, "Category image is required"]
+    }
 }, { timestamps: true });
 
 export default mongoose.model("Category", categoryModel);

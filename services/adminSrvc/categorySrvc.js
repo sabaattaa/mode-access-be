@@ -1,5 +1,5 @@
 
-import Category from "../../models/adminModel/categoryModel.js"; 
+import Category from "../../models/adminModel/categoryModel.js";
 import { buildCategoryTree } from "../../utils/buildTree.js";
 import { api_response } from "../../utils/response.js";
 import XLSX from "xlsx";
@@ -8,7 +8,7 @@ export const addCategorySrvc = async (data) => {
 
     try {
         const newCategory = await Category.create(data);
- 
+
         return api_response(
             "SUCCESS",
             "New category added successfully.",
@@ -79,7 +79,7 @@ export const getCategorySrvc = async (query) => {
                     parentCategories,
                     subCategories,
                 },
-                categories: categoryTree,  
+                categories: categoryTree,
             }
         );
     } catch (e) {
@@ -97,13 +97,13 @@ export const getCategorySrvc = async (query) => {
 export const updateCategorySrvc = async (req) => {
     try {
         const data = req.body;
-        // if (req.file) {
-        //     data.category_img = req.file.path;
-        // }
+        if (req.file) {
+            data.category_img = req.file.path;
+        }
         const { id } = req.query;
-        // category_img,
-        const { name, slug, featured, 
-             parent_category, status, description } = data;
+
+        const { name, slug, featured,
+            parent_category, category_img, status, description } = data;
         if (!id) {
             return api_response("FAIL", "Category ID is required for update.", null);
         }
@@ -112,7 +112,7 @@ export const updateCategorySrvc = async (req) => {
         if (name) updateData.name = name;
         if (slug) updateData.slug = slug;
         if (featured !== undefined) updateData.featured = featured === "true";
-        // if (category_img) updateData.category_img = category_img;
+        if (category_img) updateData.category_img = category_img;
         if (parent_category !== undefined) updateData.parent_category = parent_category;
         if (status) updateData.status = status;
         if (description) updateData.description = description;
@@ -160,27 +160,27 @@ export const deleteCategorySrvc = async (id) => {
 };
 
 
-export const exportToExcelSrvc = async (req,res) => {
-  try {
-    const categories = await Category.find().lean();
- 
-    const worksheet = XLSX.utils.json_to_sheet(categories);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Categories");
+export const exportToExcelSrvc = async (req, res) => {
+    try {
+        const categories = await Category.find().lean();
 
-    
-    const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+        const worksheet = XLSX.utils.json_to_sheet(categories);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Categories");
 
-     
-    res.setHeader("Content-Disposition", "attachment; filename=categories.xlsx");
-    res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    );
- 
-    res.send(buffer);
-  } catch (err) {
-    console.error("Excel export error:", err);
-    res.status(500).json({ status: "FAIL", message: "Failed to export Excel." });
-  }
+
+        const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+
+
+        res.setHeader("Content-Disposition", "attachment; filename=categories.xlsx");
+        res.setHeader(
+            "Content-Type",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+
+        res.send(buffer);
+    } catch (err) {
+        console.error("Excel export error:", err);
+        res.status(500).json({ status: "FAIL", message: "Failed to export Excel." });
+    }
 };

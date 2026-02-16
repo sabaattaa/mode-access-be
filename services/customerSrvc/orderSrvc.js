@@ -70,7 +70,9 @@ export const getOrdersSrvc = async (filter = {}, sort = { createdAt: -1 }) => {
         // 1. Fetch Orders
         const Orders = await Order.find(filter)
             .sort(sort)
-            .populate("user_id"); 
+            .populate("user_id","name"); 
+
+
 
         if (!Orders?.length) {
             return api_response("FAIL", "No orders found", null);
@@ -88,15 +90,10 @@ export const getOrdersSrvc = async (filter = {}, sort = { createdAt: -1 }) => {
         });
 
 
-        console.log(
-            "feedbackedOrderIds",feedbackedOrderIds
-        )
-
+     
         // Convert to a Set for O(1) (Instant) lookup time
         const feedbackSet = new Set(feedbackedOrderIds.map(String));
-  console.log(
-            "feedbackedOrderIds22",feedbackSet
-        )
+ 
 
         // 3. Fetch Order Items
         const items = await OrderItem.find({ order_id: { $in: orderIds } })
@@ -169,6 +166,8 @@ export const getOrdersSrvc = async (filter = {}, sort = { createdAt: -1 }) => {
 
 // update Order Service (Soft delete all)
 export const updateOrderSrvc = async (id, status) => {
+    
+            console.log("ssssssssOrderddds",id, status )
     try {
         const order = await Order.findOne({ _id: id, });
         if (!order) {

@@ -43,6 +43,15 @@ export const addCartSrvc = async (data) => {
 
             await cartItem.save();
 
+            // --- ADDED LOGIC: Remove from Wishlist if exists ---
+            if (userId) {
+                await wishListModel.findOneAndDelete({
+                    user_id: userId,
+                    product_id: product_id
+                });
+            }
+            // ---------------------------------------------------
+
             // Populate product details for response
             const populatedCart = await Cart.findById(cartItem._id)
                 .populate("product_id", "name price product_imgs");
@@ -60,6 +69,16 @@ export const addCartSrvc = async (data) => {
             is_active: true,
             ...(userId && { user_id: userId }),
         });
+
+        // --- ADDED LOGIC: Remove from Wishlist if exists ---
+        if (userId) {
+            await wishListModel.findOneAndDelete({
+                user_id: userId,
+                product_id: product_id
+            });
+        }
+        // ---------------------------------------------------
+
         const populatedCart = await Cart.findById(newCart._id)
             .populate("product_id", "name price product_imgs");
 
@@ -226,7 +245,7 @@ export const getWishlistSrvc = async (userId) => {
 
         const wishlist = await wishListModel
             .find({ user_id: userId })
-            .populate("product_id", "name price product_imgs category")
+            .populate("product_id", "name price product_thumbnail category")
             .lean();
 
         const finalWishlist = wishlist.map(item => ({

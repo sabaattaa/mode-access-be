@@ -16,7 +16,7 @@ export const OrderSchema = z.object({
 
   shipping_address: z.string().min(10, 'Shipping address must be at least 10 characters'),
 
-  payment_method: z.enum(['COD', 'BANK', "JazzCash"]),
+  payment_method: z.enum(['COD', 'BANK',"JAZZCASH"]),
   shipping_method: z.enum(['standard', 'express',]),
 
   coupon_code: z.string()

@@ -24,15 +24,7 @@ export const addCartCtrl = async (req, res) => {
             return api_response("FAIL", "Invalid product id", null);
         }
 
-        let user = null;
-        if (userId) {
-            user = await User.findById({ _id: userId });
-
-        }
-
-
-        if (!user) { return api_response("FAIL", "user not found", null); }
-
+        
         const product = await findProduct(product_id);
         if (!product) {
             return res.status(400).json(

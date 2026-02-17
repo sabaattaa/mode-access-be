@@ -8,25 +8,47 @@ export const addProductCtrl = async (req, res) => {
 
     try {
         const { name, sku, description, category, price, original_price, stock_quantity, status, featured } = req.body;
-        const images = req.files?.map(file => file.path.replace(/\\/g, "/"));
-        // const images = req.files?.map(file => file.path);
-
-        if (!images || images.length === 0) {
-            throw new Error("Product images are required");
+ 
+        let thumbnailPath = null; 
+        if (req.files && req.files['product_thumbnail'] && req.files['product_thumbnail'].length > 0) {
+            
+            thumbnailPath = req.files['product_thumbnail'][0].path.replace(/\\/g, "/");
         }
+ 
+        const imagesPaths = req.files?.['product_imgs']?.map(file => file.path.replace(/\\/g, "/")) || [];
+ 
+        if (!thumbnailPath) {
+            throw new Error("Product thumbnail is required");
+        }
+         
+        if (!imagesPaths || imagesPaths.length === 0) {
+             throw new Error("Product images are required");
+        }
+ 
+        const data = {
+            name,
+            sku,
+            description,
+            category,
+            price,
+            original_price,
+            stock_quantity,
+            status,
+            featured,
+            product_thumbnail: thumbnailPath,  
+            product_imgs: imagesPaths          
+        };
 
-        const data = { name, sku, description, category, price, original_price, stock_quantity, status, featured, product_imgs: images, };
+        const addProductRes = await addProductSrvc(data);
 
-        const addProductRes = await addProductSrvc(data)
-
-        res.status(200).json(addProductRes)
+        res.status(200).json(addProductRes);
 
     } catch (e) {
-        console.log("error", e)
+        console.log("error", e);
+        res.status(500).json({ success: false, message: e.message });
     }
 
-}
-
+};
 
 //  Get All Products
 

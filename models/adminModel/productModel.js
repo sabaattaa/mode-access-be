@@ -29,6 +29,7 @@ const productModal = new mongoose.Schema(
       default: "active",
     },
 
+
     featured: {
       type: Boolean,
       default: false,
@@ -57,7 +58,12 @@ const productModal = new mongoose.Schema(
       required: [true, "Stock quantity is required"],
       min: [0, "Stock quantity cannot be negative"],
     },
-   
+    product_thumbnail: {
+      type: String,
+      required: [true, "Product thumbnil is required"],
+      trim: true,
+      unique: true,
+    },
     product_imgs: [
       {
         type: String,

@@ -14,14 +14,24 @@ export const addOrderSrvc = async (user_id, data) => {
 
         const { phone, coupon_code, shipping_method, payment_method, shipping_address, order_items, } = data;
 
-        let total_price = 200;
 
 
+        let delivery_price = shipping_method == "standard" ? 180 : 300;
+
+
+        console.log("eee", shipping_method, delivery_price,)
+
+        let total_price = 0
         for (const item of order_items) {
             const product = await findProduct(item.product_id);
             const price = item.quantity * product.price;
+
             total_price += price;
         }
+
+
+        let shippingPrice = total_price > 1500 ? 0 : 100
+        console.log("eee222", shippingPrice, total_price,)
 
         const order_no = `ORD-${Date.now()}`;
         const payment_status = `pending`;
@@ -31,14 +41,13 @@ export const addOrderSrvc = async (user_id, data) => {
             order_no,
             phone,
             user_id: user_id || null,
-            total_price,
+            total_price: total_price + delivery_price + shippingPrice,
             coupon_code,
             payment_method,
             shipping_method,
             shipping_address,
             payment_status
         });
-
 
         const orderItemsPayload = order_items.map(item => ({
             order_id: order._id,
@@ -70,7 +79,7 @@ export const getOrdersSrvc = async (filter = {}, sort = { createdAt: -1 }) => {
         // 1. Fetch Orders
         const Orders = await Order.find(filter)
             .sort(sort)
-            .populate("user_id","name"); 
+            .populate("user_id", "name");
 
 
 
@@ -90,10 +99,10 @@ export const getOrdersSrvc = async (filter = {}, sort = { createdAt: -1 }) => {
         });
 
 
-     
+
         // Convert to a Set for O(1) (Instant) lookup time
         const feedbackSet = new Set(feedbackedOrderIds.map(String));
- 
+
 
         // 3. Fetch Order Items
         const items = await OrderItem.find({ order_id: { $in: orderIds } })
@@ -114,7 +123,7 @@ export const getOrdersSrvc = async (filter = {}, sort = { createdAt: -1 }) => {
         // 4. Build Final Response
         const ordersWithItems = Orders.map(order => {
             const orderItems = itemsByOrder[order._id.toString()] || [];
-            
+
             // 🔥 LOGIC: Check if this Order ID exists in our Feedback Set
             const isFeedbackGiven = feedbackSet.has(order._id.toString());
 
@@ -166,8 +175,8 @@ export const getOrdersSrvc = async (filter = {}, sort = { createdAt: -1 }) => {
 
 // update Order Service (Soft delete all)
 export const updateOrderSrvc = async (id, status) => {
-    
-            console.log("ssssssssOrderddds",id, status )
+
+    console.log("ssssssssOrderddds", id, status)
     try {
         const order = await Order.findOne({ _id: id, });
         if (!order) {

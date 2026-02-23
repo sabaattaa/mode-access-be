@@ -17,10 +17,7 @@ export const addOrderSrvc = async (user_id, data) => {
 
 
         let delivery_price = shipping_method == "standard" ? 180 : 300;
-
-
-        console.log("eee", shipping_method, delivery_price,)
-
+  
         let total_price = 0
         for (const item of order_items) {
             const product = await findProduct(item.product_id);
@@ -30,8 +27,7 @@ export const addOrderSrvc = async (user_id, data) => {
         }
 
 
-        let shippingPrice = total_price > 1500 ? 0 : 100
-        console.log("eee222", shippingPrice, total_price,)
+        let shippingPrice = total_price > 1500 ? 0 : 100 
 
         const order_no = `ORD-${Date.now()}`;
         const payment_status = `pending`;
@@ -175,8 +171,7 @@ export const getOrdersSrvc = async (filter = {}, sort = { createdAt: -1 }) => {
 
 // update Order Service (Soft delete all)
 export const updateOrderSrvc = async (id, status) => {
-
-    console.log("ssssssssOrderddds", id, status)
+ 
     try {
         const order = await Order.findOne({ _id: id, });
         if (!order) {

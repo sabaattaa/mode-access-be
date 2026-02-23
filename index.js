@@ -30,12 +30,12 @@ app.use((req, res) => {
 
 
 
-export default app
+// export default app
 
 
-// import { connectDB } from "./services/db/mongodb.js";
-// connectDB();
-// const port = process.env.PORT || 5000;
-// app.listen(port, () => {
-//   console.log(`Server is running on port ${port}`);
-// });
+import { connectDB } from "./services/db/mongodb.js";
+connectDB();
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
